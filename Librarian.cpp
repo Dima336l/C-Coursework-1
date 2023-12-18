@@ -2,6 +2,8 @@
 #include <string>
 
 Librarian::Librarian() {
+  salary = 0;
+  staffId = 0;
 }
 Librarian::Librarian(int staffID, std::string name, std::string address, std::string email, int sal) {
   //Seting values using setters from base class
