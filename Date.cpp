@@ -11,6 +11,9 @@ namespace MyNamespace {
     month = m;
     year = y;
   }
+  
+  
+  
   int MyNamespace::Date::getDay() const {
     return day;
   }
@@ -41,6 +44,32 @@ namespace MyNamespace {
     }
     year = y;
   }
+  MyNamespace::Date MyNamespace::Date::addDays(int d) {
+    if (isValidDate(day+d,month,year)) {
+      day += d;
+    } else {
+      int remainingDays = d;
+      year += (remainingDays / 365);
+      remainingDays %= 365;
+      while (remainingDays > 0) {
+	int daysInMonth = Date::daysInMonth(month,year);
+	if (remainingDays > daysInMonth - day ) {
+	  remainingDays = remainingDays - (daysInMonth - day );
+	  month ++;
+      if (month > 12) {
+	month = 1;
+	year++;
+      }
+      day = 0;
+	} else {
+	day += remainingDays;
+	remainingDays = 0;
+	}
+      }
+    }
+    return MyNamespace::Date(day,month,year);
+  }
+  
   bool MyNamespace::Date::isValidDate(int d, int m, int y) {
     if (y < 0 || m < 1 || m > 12 || d < 1 || d > Date::daysInMonth(m,y)) {
       return false;

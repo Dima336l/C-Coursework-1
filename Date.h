@@ -12,6 +12,7 @@ class Date {
   static bool isLeapYear(int y);
  public:
   Date(int d, int m, int y);
+  Date addDays(int d);
   int getDay() const;
   int getMonth() const;
   int getYear() const;
