@@ -1,10 +1,6 @@
 #include "Librarian.h"
 #include <string>
 
-Librarian::Librarian() {
-  salary = 0;
-  staffId = 0;
-}
 Librarian::Librarian(int staffID, std::string name, std::string address, std::string email, int sal) {
   //Seting values using setters from base class
   setName(name);
@@ -15,6 +11,12 @@ Librarian::Librarian(int staffID, std::string name, std::string address, std::st
   Librarian::setStaffID(staffID);
   Librarian::setSalary(sal);
 }
+
+Librarian::Librarian() {
+  staffId = 0;
+  salary = 0;
+}
+
 void Librarian::setStaffID(int id) {
   staffId = id;
 }

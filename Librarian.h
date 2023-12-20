@@ -9,8 +9,8 @@ class Librarian : public Person {
   int staffId;
   int salary;
  public:
-  Librarian();
   Librarian(int staffId, std::string name, std::string address, std::string email, int salary);
+  Librarian();
   void addMember();
   void issueBook(int memberID, int bookID);
   void returnBook(int memberID, int bookID);
