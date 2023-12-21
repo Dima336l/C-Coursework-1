@@ -1,7 +1,9 @@
 #ifndef PERSON_H
 #define PERSON_H
 #include <string>
+#include "MyNamespace.h"
 
+namespace MyNamespace {
 class Person {
  private:
   std::string name;
@@ -15,5 +17,6 @@ class Person {
   std::string getEmail();
   void setEmail(std::string);
 };
+}
 
 #endif

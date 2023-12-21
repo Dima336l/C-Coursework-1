@@ -2,9 +2,11 @@
 #define LIBRARIAN_H
 
 #include "Person.h"
+#include "MyNamespace.h"
 #include <string>
 
-class Librarian : public Person {
+namespace MyNamespace {
+  class Librarian : public Person {
  private :
   int staffId;
   int salary;
@@ -21,5 +23,5 @@ class Librarian : public Person {
   int getSalary();
   void setSalary(int salary);
 };
-
+}
 #endif

@@ -1,9 +1,14 @@
 #define CATCH_CONFIG_MAIN
 #include "catch.hpp"
 
+#include "MyNamespace.h"
+#include "Date.h"
 #include "Person.h"
 #include "Librarian.h"
-#include "Date.h"
+#include "Book.h"
+#include "Member.h"
+
+using namespace MyNamespace;
 
 TEST_CASE("Person class tests", "[PERSON]") {
   SECTION("Test default constructor and getters") {
@@ -45,17 +50,17 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
 
 TEST_CASE("Date class tests","[Date]") {
   SECTION("Testing invalid date values") {
-    REQUIRE_THROWS_AS(MyNamespace::Date(32,1,2000), std::invalid_argument);
-    REQUIRE_THROWS_AS(MyNamespace::Date(1,13,2000), std::invalid_argument);
-    REQUIRE_THROWS_AS(MyNamespace::Date(1,12,-10), std::invalid_argument);   
+    REQUIRE_THROWS_AS(Date (32,1,2000), std::invalid_argument);
+    REQUIRE_THROWS_AS(Date (1,13,2000), std::invalid_argument);
+    REQUIRE_THROWS_AS(Date (1,12,-10), std::invalid_argument);
   }
   SECTION("Testing valid date values") {
-    REQUIRE_NOTHROW(MyNamespace::Date(1,12,2000));
-    REQUIRE_NOTHROW(MyNamespace::Date(5,3,1997));
-    REQUIRE_NOTHROW(MyNamespace::Date(10,1,1000));
+    REQUIRE_NOTHROW(Date (1,12,2000));
+    REQUIRE_NOTHROW(Date (5,3,1997));
+    REQUIRE_NOTHROW(Date (10,1,1000));
   }
   SECTION("Testing modification of date components") {
-    MyNamespace::Date date(1,12,2000);
+    Date date(1,12,2000);
     REQUIRE(date.getDay() == 1);
     REQUIRE(date.getMonth()== 12);
     REQUIRE(date.getYear() == 2000);
@@ -67,49 +72,119 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(date.getYear() == 2023);
 }
   SECTION("Testing leap year") {
-    REQUIRE_NOTHROW(MyNamespace::Date(29,2,2024));
-    REQUIRE_THROWS_AS(MyNamespace::Date(29,2,2022),std::invalid_argument);
+    REQUIRE_NOTHROW(Date (29,2,2024));
+    REQUIRE_THROWS_AS(Date (29,2,2022),std::invalid_argument);
   }
   SECTION("Testing add days function no changing month and year") {
-    MyNamespace::Date date (01,12,2000);
-    MyNamespace::Date newDate = date.addDays(3);
+    Date date(01,12,2000);
+    Date newDate = date.addDays(3);
     REQUIRE(newDate.getDay() == 4);
     REQUIRE(newDate.getMonth() == 12);
     REQUIRE(newDate.getYear() == 2000);
   }
   SECTION("Testing add days function with month changing") {
-    MyNamespace::Date date (30,1,2000);
-    MyNamespace::Date newDate = date.addDays(3);
+    Date date (30,1,2000);
+    Date newDate = date.addDays(3);
     REQUIRE(newDate.getDay() == 2);
     REQUIRE(newDate.getMonth() == 2);
     REQUIRE(newDate.getYear() == 2000);
   }
   SECTION("Testing add days function with month and year changing") {
-    MyNamespace::Date date (31,12,2000);
-    MyNamespace::Date newDate = date.addDays(3);
+    Date date (31,12,2000);
+    Date newDate = date.addDays(3);
     REQUIRE(newDate.getDay() == 3);
     REQUIRE(newDate.getMonth() == 1);
     REQUIRE(newDate.getYear() == 2001);
   }
   SECTION("Testing add days function leap year") {
-    MyNamespace::Date date (25,2,2024);
-    MyNamespace::Date newDate = date.addDays(4);
+    Date date (25,2,2024);
+    Date newDate = date.addDays(4);
     REQUIRE(newDate.getDay() == 29);
     REQUIRE(newDate.getMonth() == 2);
     REQUIRE(newDate.getYear() == 2024);
   }
   SECTION("Testing add days function with large values") {
-    MyNamespace::Date date (1,12,2000);
-    MyNamespace::Date newDate = date.addDays(69);
+    Date date (1,12,2000);
+    Date newDate = date.addDays(69);
     REQUIRE(newDate.getDay() == 8);
     REQUIRE(newDate.getMonth() == 2);
     REQUIRE(newDate.getYear() == 2001);
   }
   SECTION("Testing add days function with even larger values") {
-    MyNamespace::Date date (1,12,2000);
-    MyNamespace::Date newDate = date.addDays(500);
+    Date date (1,12,2000);
+    Date newDate = date.addDays(500);
     REQUIRE(newDate.getDay() == 15);
     REQUIRE(newDate.getMonth() == 4);
     REQUIRE(newDate.getYear() == 2002);
   }
+  SECTION("Testing initial date value") {
+    Date currentDate = Date::getCurrentDate();
+    REQUIRE(currentDate.getDay() == 1);
+    REQUIRE(currentDate.getMonth() == 1);
+    REQUIRE(currentDate.getYear() == 2000);
+  }
+  SECTION("Testing initial date setter") {
+  std::stringstream outputCapture;
+  std::streambuf* originalCout = std::cout.rdbuf();
+  std::cout.rdbuf(outputCapture.rdbuf());
+  std::stringstream input;
+  input << "1\n2\n2023\n";
+  std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
+  Date::setInitialDate();
+  std::cout.rdbuf(originalCout);
+  std::cin.rdbuf(origCin);
+  Date currentDate = Date::getCurrentDate();
+  REQUIRE(currentDate.getDay() == 1);
+  REQUIRE(currentDate.getMonth() == 2);
+  REQUIRE(currentDate.getYear() == 2023);
+  }
+}
+  TEST_CASE("Book class test","[Book]") {
+    SECTION("Testing Book Parameterized constructor and Getters") {
+      Book book (1,"Sun","Dumitru","Nirca");
+      REQUIRE(book.getBookID() == "1");
+      REQUIRE(book.getAuthorFirstName() == "Dumitru");
+      REQUIRE(book.getAuthorLastName() == "Nirca");
+  }
+    SECTION("Testing getDueDate function when due date not set") {
+      Book book (1,"Sun","Dumitru","Nirca");
+      REQUIRE_THROWS_AS(book.getDueDate(),std::logic_error);
+    }
+    SECTION("Testing setDueDate getDueDate and returnBook function") {
+      Book book (1,"Sun","Dumitru","Nirca");
+      Date currentDate = Date::getCurrentDate();
+      REQUIRE(currentDate.getDay() == 1);
+      REQUIRE(currentDate.getMonth() == 2);
+      REQUIRE(currentDate.getYear() == 2023);
+      book.setDueDate(currentDate);
+      Date bookDueDate = book.getDueDate();
+      REQUIRE(bookDueDate.getDay() == 4);
+      REQUIRE(bookDueDate.getMonth() == 2);
+      REQUIRE(bookDueDate.getYear() == 2023);
+      book.returnBook();
+      REQUIRE_THROWS_AS(book.getDueDate(),std::logic_error);
+    }
+    SECTION("Testing burrowBook function") {
+      Date currentDate = Date::getCurrentDate();
+      std::cout << currentDate.getDay() << std::endl;
+      Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+      Book book(1,"Sun","Dumitru","Nirca");
+      book.setDueDate(currentDate);
+      Date bookDueDate = book.getDueDate();
+      book.burrowBook(member,bookDueDate);
+      bookDueDate = book.getDueDate();
+      REQUIRE(bookDueDate.getDay() == 4);
+      REQUIRE(bookDueDate.getMonth() == 2);
+      REQUIRE(bookDueDate.getYear() == 2023);   
+          }
+  }
+ TEST_CASE("Member class test","[Member]") {
+   SECTION("Testing member parameterized constructor") {
+      Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+      REQUIRE(member.getMemberID() == "1");
+      REQUIRE(member.getName() == "Dumitru");
+      REQUIRE(member.getAddress() == "Colindale");
+      REQUIRE(member.getEmail() == "Nircadmitrii@icloud.com");
+    }
+   
 }

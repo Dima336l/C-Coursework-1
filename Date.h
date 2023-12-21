@@ -1,5 +1,7 @@
-#ifndef DATE_H
-#define DATE_H
+#ifndef MYNAMESPACE_DATE_H
+#define MYNAMESPACE_DATE_H
+
+#include "MyNamespace.h"
 
 namespace MyNamespace {
 class Date {
@@ -11,8 +13,11 @@ class Date {
   static int daysInMonth(int m, int y);
   static bool isLeapYear(int y);
  public:
+  static Date currentDate;
   Date(int d, int m, int y);
   Date addDays(int d);
+  static void setInitialDate();
+  static Date getCurrentDate();
   int getDay() const;
   int getMonth() const;
   int getYear() const;
@@ -22,5 +27,4 @@ class Date {
   void displayDate() const;
 };
 }
-
 #endif

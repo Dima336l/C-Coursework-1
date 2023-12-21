@@ -1,18 +1,22 @@
-#ifndef BOOK_h
-#define BOOK_h
+#ifndef MYNAMESPACE_BOOK_H
+#define MYNAMESPACE_BOOK_H
 
 #include <string>
-#include "Member.h"
+#include "MyNamespace.h"
 
+namespace MyNamespace {
+  class Date;
+  class Member;
 class Book { 
   private:
+  bool dueDateNotSet;
   int bookID;
   std::string bookName;
   std::string authorFirstName;
   std::string authorLastName;
   std::string bookType;
-  Date dueDate;
-  Member burrower;
+  Date* dueDate;
+  Member* burrower;
   public:
   Book(int bookId, std::string bookN, std::string authFirstN, std::string authLastN);
   std::string getBookID();
@@ -24,5 +28,6 @@ class Book {
   void returnBook();
   void burrowBook(Member burrower, Date dueDate);
 };
+}
 
 #endif

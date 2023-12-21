@@ -1,25 +1,27 @@
 #include "Person.h"
 
-std::string Person::getName() {
+namespace MyNamespace {
+  std::string MyNamespace::Person::getName() {
   return name;
 }
 
-void Person::setName(std::string n) {
+  void MyNamespace::Person::setName(std::string n) {
   name = n;
 }
 
-std::string Person::getAddress() {
+  std::string MyNamespace::Person::getAddress() {
   return address;
 }
 
-void Person::setAddress(std::string ad) {
+  void MyNamespace::Person::setAddress(std::string ad) {
   address = ad;
 }
 
-std::string Person::getEmail() {
+  std::string MyNamespace::Person::getEmail() {
   return email;
 }
 
-void Person::setEmail(std::string e) {
+  void MyNamespace::Person::setEmail(std::string e) {
   email = e;
+}
 }
