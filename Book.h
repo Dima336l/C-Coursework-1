@@ -3,6 +3,7 @@
 
 #include <string>
 #include "MyNamespace.h"
+#include <memory>
 
 namespace MyNamespace {
   class Date;
@@ -15,7 +16,7 @@ class Book {
   std::string authorFirstName;
   std::string authorLastName;
   std::string bookType;
-  Date* dueDate;
+  std::unique_ptr<Date> dueDate;
   Member* burrower;
   public:
   Book(int bookId, std::string bookN, std::string authFirstN, std::string authLastN);

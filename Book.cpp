@@ -4,6 +4,7 @@
 #include "Member.h"
 #include <iostream>
 #include <string>
+#include <memory>
 
 namespace MyNamespace {
   Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr) {
@@ -31,19 +32,18 @@ namespace MyNamespace {
       return *dueDate;
   }
   void Book::setDueDate(Date currentDate) {
-    this->dueDate = new Date(currentDate.addDays(3));
+    dueDate= std::make_unique<Date>(currentDate.addDays(3));
     dueDateNotSet = false;
   }
   void Book::returnBook() {
-    delete dueDate;
-    dueDate = nullptr;
+    dueDate.reset();
     dueDateNotSet = true;
   }
   
   void Book::burrowBook(Member bur,Date due) {
     if (burrower == nullptr) {
       burrower = &bur;
-      dueDate = &due;
+      dueDate = std::make_unique<Date>(due);
       bur.setBooksBurrowed(this);
     }
     } 

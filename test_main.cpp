@@ -166,7 +166,6 @@ TEST_CASE("Date class tests","[Date]") {
     }
     SECTION("Testing burrowBook function") {
       Date currentDate = Date::getCurrentDate();
-      std::cout << currentDate.getDay() << std::endl;
       Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
       Book book(1,"Sun","Dumitru","Nirca");
       book.setDueDate(currentDate);
