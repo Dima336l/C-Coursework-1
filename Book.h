@@ -27,7 +27,7 @@ class Book {
   Date getDueDate();
   void setDueDate(Date dueDate);
   void returnBook();
-  void burrowBook(Member burrower, Date dueDate);
+  void borrowBook(Member& burrower, Date dueDate);
 };
 }
 

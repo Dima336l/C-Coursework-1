@@ -15,8 +15,8 @@ class Member : public Person {
 public:
   Member(int memberID, std::string name, std::string address, std::string email);
   std::string getMemberID();
-  std::vector <Book*> getBooksBurrowed();
-  void setBooksBurrowed(Book* book);
+  std::vector <Book*>& getBooksBorrowed();
+  void setBooksBorrowed(Book* book);
 };
 }
 #endif

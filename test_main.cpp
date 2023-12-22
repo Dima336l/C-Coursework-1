@@ -7,6 +7,7 @@
 #include "Librarian.h"
 #include "Book.h"
 #include "Member.h"
+#include <vector>
 
 using namespace MyNamespace;
 
@@ -140,19 +141,18 @@ TEST_CASE("Date class tests","[Date]") {
   }
 }
   TEST_CASE("Book class test","[Book]") {
+    Date currentDate = Date::getCurrentDate();
+    Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+    Book book (1,"Sun","Dumitru","Nirca");
     SECTION("Testing Book Parameterized constructor and Getters") {
-      Book book (1,"Sun","Dumitru","Nirca");
       REQUIRE(book.getBookID() == "1");
       REQUIRE(book.getAuthorFirstName() == "Dumitru");
       REQUIRE(book.getAuthorLastName() == "Nirca");
   }
     SECTION("Testing getDueDate function when due date not set") {
-      Book book (1,"Sun","Dumitru","Nirca");
       REQUIRE_THROWS_AS(book.getDueDate(),std::logic_error);
     }
     SECTION("Testing setDueDate getDueDate and returnBook function") {
-      Book book (1,"Sun","Dumitru","Nirca");
-      Date currentDate = Date::getCurrentDate();
       REQUIRE(currentDate.getDay() == 1);
       REQUIRE(currentDate.getMonth() == 2);
       REQUIRE(currentDate.getYear() == 2023);
@@ -165,12 +165,9 @@ TEST_CASE("Date class tests","[Date]") {
       REQUIRE_THROWS_AS(book.getDueDate(),std::logic_error);
     }
     SECTION("Testing burrowBook function") {
-      Date currentDate = Date::getCurrentDate();
-      Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-      Book book(1,"Sun","Dumitru","Nirca");
       book.setDueDate(currentDate);
       Date bookDueDate = book.getDueDate();
-      book.burrowBook(member,bookDueDate);
+      book.borrowBook(member,bookDueDate);
       bookDueDate = book.getDueDate();
       REQUIRE(bookDueDate.getDay() == 4);
       REQUIRE(bookDueDate.getMonth() == 2);
@@ -178,12 +175,27 @@ TEST_CASE("Date class tests","[Date]") {
           }
   }
  TEST_CASE("Member class test","[Member]") {
+   Date currentDate = Date::getCurrentDate();
+   Member memberNew (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+   Book bookNew (1,"Moon","Dumitru","Nirca");
+   std::vector <Book*> books;
+   size_t initialSize;
+   size_t finalSize;
    SECTION("Testing member parameterized constructor") {
-      Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-      REQUIRE(member.getMemberID() == "1");
-      REQUIRE(member.getName() == "Dumitru");
-      REQUIRE(member.getAddress() == "Colindale");
-      REQUIRE(member.getEmail() == "Nircadmitrii@icloud.com");
-    }
+      REQUIRE(memberNew.getMemberID() == "1");
+      REQUIRE(memberNew.getName() == "Dumitru");
+      REQUIRE(memberNew.getAddress() == "Colindale");
+      REQUIRE(memberNew.getEmail() == "Nircadmitrii@icloud.com");
+   }
+   SECTION("Testing getBurrowedBooks and setBooksBurrowed functions") {
+      bookNew.setDueDate(currentDate);
+      Date bookDueDate = bookNew.getDueDate();
+      initialSize = (memberNew.getBooksBorrowed()).size();
+      REQUIRE(initialSize == 0);
+      bookNew.borrowBook(memberNew,bookDueDate);
+      finalSize = (memberNew.getBooksBorrowed()).size();
+      REQUIRE(finalSize == 1);
+      REQUIRE(memberNew.getBooksBorrowed()[0] == &bookNew);
+     }
    
 }

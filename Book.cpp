@@ -7,7 +7,7 @@
 #include <memory>
 
 namespace MyNamespace {
-  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr) {
+  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr), burrower(nullptr) {
     bookID = bID;
     bookName = bName;
     authorFirstName = authFirstN;
@@ -40,11 +40,11 @@ namespace MyNamespace {
     dueDateNotSet = true;
   }
   
-  void Book::burrowBook(Member bur,Date due) {
+  void Book::borrowBook(Member& bur,Date due) {
     if (burrower == nullptr) {
       burrower = &bur;
       dueDate = std::make_unique<Date>(due);
-      bur.setBooksBurrowed(this);
+      bur.setBooksBorrowed(this);
     }
-    } 
+    }
 }
