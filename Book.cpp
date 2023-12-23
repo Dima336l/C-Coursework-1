@@ -4,15 +4,35 @@
 #include "Member.h"
 #include <iostream>
 #include <string>
+#include <algorithm>
 #include <memory>
 
 namespace MyNamespace {
-  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr), burrower(nullptr) {
+  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr), borrower(nullptr) {
     bookID = bID;
     bookName = bName;
     authorFirstName = authFirstN;
     authorLastName = authLastN;
       }
+  Book::Book(const Book& other) 
+    : bookID(other.bookID),
+      bookName(other.bookName),
+      authorFirstName(other.authorFirstName),
+      authorLastName(other.authorLastName),
+      dueDateNotSet(other.dueDateNotSet),
+      dueDate(nullptr)
+  {
+      if (other.dueDate) {
+	dueDate = new Date(*other.dueDate);
+      }
+      if (other.borrower) {
+      borrower = new Member(*other.borrower);
+    }
+  }
+  Book::~Book() {
+    delete borrower;
+    delete dueDate;
+  }
   std::string Book::getBookID() {
     return std::to_string(bookID);
   }
@@ -32,19 +52,30 @@ namespace MyNamespace {
       return *dueDate;
   }
   void Book::setDueDate(Date currentDate) {
-    dueDate= std::make_unique<Date>(currentDate.addDays(3));
+    Date newDueDate= currentDate.addDays(3);
+    dueDate = new Date(newDueDate);
     dueDateNotSet = false;
   }
   void Book::returnBook() {
-    dueDate.reset();
-    dueDateNotSet = true;
+    std::vector<Book*>& bookVec = borrower->getBooksBorrowed();
+    auto it = std::find(bookVec.begin(),bookVec.end(),this);
+    if (it != bookVec.end()) {
+     bookVec.erase(it);
+    std::cout<<"Book deleted" << std::endl;
+    if (dueDate) {
+      delete dueDate;
+      dueDate = nullptr;
+      dueDateNotSet = true;
+    }
+  }
   }
   
-  void Book::borrowBook(Member& bur,Date due) {
-    if (burrower == nullptr) {
-      burrower = &bur;
-      dueDate = std::make_unique<Date>(due);
-      bur.setBooksBorrowed(this);
-    }
-    }
-}
+  void Book::borrowBook(Member &bur,Date due) {
+    borrower = &bur;
+    std::cout << borrower->getName() << std::endl;
+    dueDate = new Date(due);
+      }
+  }
+
+
+

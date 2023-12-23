@@ -10,11 +10,11 @@ class Person {
   std::string address;
   std::string email;
  public:
-  std::string getName();
+  std::string getName() const;
   void setName(std::string n);
-  std::string getAddress();
+  std::string getAddress() const;
   void setAddress(std::string ad);
-  std::string getEmail();
+  std::string getEmail() const;
   void setEmail(std::string);
 };
 }

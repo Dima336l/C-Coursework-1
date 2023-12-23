@@ -16,10 +16,12 @@ class Book {
   std::string authorFirstName;
   std::string authorLastName;
   std::string bookType;
-  std::unique_ptr<Date> dueDate;
-  Member* burrower;
+  Date* dueDate;
+  Member* borrower;
   public:
+  ~Book();
   Book(int bookId, std::string bookN, std::string authFirstN, std::string authLastN);
+  Book(const Book& other);
   std::string getBookID();
   std::string getBookName();
   std::string getAuthorFirstName();
@@ -27,7 +29,7 @@ class Book {
   Date getDueDate();
   void setDueDate(Date dueDate);
   void returnBook();
-  void borrowBook(Member& burrower, Date dueDate);
+  void borrowBook(Member &burrower, Date dueDate);
 };
 }
 

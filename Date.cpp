@@ -13,6 +13,11 @@ namespace MyNamespace {
     month = m;
     year = y;
   }
+  Date::Date(const Date& other) {
+    day = other.getDay();
+    month = other.getMonth();
+    year = other.getYear();
+  }
   
   
   int Date::getDay() const {

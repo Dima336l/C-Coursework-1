@@ -1,7 +1,7 @@
 #include "Person.h"
 
 namespace MyNamespace {
-  std::string Person::getName() {
+  std::string Person::getName() const {
   return name;
 }
 
@@ -9,7 +9,7 @@ namespace MyNamespace {
   name = n;
 }
 
-  std::string Person::getAddress() {
+  std::string Person::getAddress() const {
   return address;
 }
 
@@ -17,7 +17,7 @@ namespace MyNamespace {
   address = ad;
 }
 
-  std::string Person::getEmail() {
+  std::string Person::getEmail() const {
   return email;
 }
 
