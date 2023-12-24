@@ -13,18 +13,6 @@ namespace MyNamespace {
     booksLoaned = std::vector<Book*>();
      }
     
-  Member::Member(const Member& other) {
-    setName(other.getName());
-    setAddress(other.getAddress());
-    setEmail(other.getEmail());
-    memberId = std::stoi(other.getMemberID());
-    for (const auto& book : other.booksLoaned) {
-      Book * copiedBook = new Book(*book);
-      booksLoaned.push_back(copiedBook);
-    }
-    }
-  
-
   Member::~Member() {
     for (auto& book : booksLoaned) {
       delete book;

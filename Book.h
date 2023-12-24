@@ -21,7 +21,6 @@ class Book {
   public:
   ~Book();
   Book(int bookId, std::string bookN, std::string authFirstN, std::string authLastN);
-  Book(const Book& other);
   std::string getBookID();
   std::string getBookName();
   std::string getAuthorFirstName();

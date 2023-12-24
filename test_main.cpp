@@ -179,7 +179,7 @@ TEST_CASE("Date class tests","[Date]") {
    Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
    size_t initialSize;
    size_t finalSize;
-   SECTION("Testing member parameterized constructor and copy constructor") {
+   SECTION("Testing member constructor, burrowBook and returnBook functions") {
       REQUIRE(memberNew1->getMemberID() == "1");
       REQUIRE(memberNew1->getName() == "Dumitru");
       REQUIRE(memberNew1->getAddress() == "Colindale");
@@ -188,22 +188,17 @@ TEST_CASE("Date class tests","[Date]") {
       bookNew->setDueDate(currentDate);
       Date bookNewDueDate = bookNew->getDueDate();
       REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
+      REQUIRE_THROWS_AS((bookNew->returnBook()),std::logic_error);
       bookNew->borrowBook(*memberNew1,bookNewDueDate);
+      REQUIRE_THROWS_AS((bookNew->borrowBook(*memberNew2,bookNewDueDate)),std::logic_error);
       REQUIRE(memberNew1->getBooksBorrowed().size() == 1);
-      Member copiedMember (*memberNew1);
-      REQUIRE(copiedMember.getMemberID() == "1");
-      REQUIRE(copiedMember.getName() == "Dumitru");
-      REQUIRE(copiedMember.getAddress() == "Colindale");
-      REQUIRE(copiedMember.getEmail() == "Nircadmitrii@icloud.com");
-      REQUIRE(copiedMember.getBooksBorrowed().size() == 1);
-   }
-   SECTION("Testing retrunBook function") {
-      Date currentDate = Date::getCurrentDate();
-      bookNew->setDueDate(currentDate);
-      Date bookNewDueDate = bookNew->getDueDate();
+      bookNew->returnBook();
       REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
+      bookNew->borrowBook(*memberNew2,bookNewDueDate);
+      REQUIRE(memberNew2->getBooksBorrowed().size() == 1);
       
    }
+
 }
 
 	 

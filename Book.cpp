@@ -5,29 +5,9 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
-#include <memory>
 
 namespace MyNamespace {
-  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : dueDateNotSet(true), dueDate(nullptr), borrower(nullptr) {
-    bookID = bID;
-    bookName = bName;
-    authorFirstName = authFirstN;
-    authorLastName = authLastN;
-      }
-  Book::Book(const Book& other) 
-    : bookID(other.bookID),
-      bookName(other.bookName),
-      authorFirstName(other.authorFirstName),
-      authorLastName(other.authorLastName),
-      dueDateNotSet(other.dueDateNotSet),
-      dueDate(nullptr)
-  {
-      if (other.dueDate) {
-	dueDate = new Date(*other.dueDate);
-      }
-      if (other.borrower) {
-      borrower = new Member(*other.borrower);
-    }
+  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : bookID(bID),bookName(bName),authorFirstName(authFirstN),authorLastName(authLastN),dueDateNotSet(true),dueDate(nullptr),borrower(nullptr) {
   }
   Book::~Book() {
     delete borrower;
@@ -57,24 +37,31 @@ namespace MyNamespace {
     dueDateNotSet = false;
   }
   void Book::returnBook() {
+    if (borrower != nullptr) {
     std::vector<Book*>& bookVec = borrower->getBooksBorrowed();
     auto it = std::find(bookVec.begin(),bookVec.end(),this);
     if (it != bookVec.end()) {
      bookVec.erase(it);
-    std::cout<<"Book deleted" << std::endl;
-    if (dueDate) {
+    }
       delete dueDate;
       dueDate = nullptr;
       dueDateNotSet = true;
+      delete borrower;
+      borrower = nullptr;
+    } else {
+      throw std::logic_error("Book was not borrowed, can not be returned");
     }
-  }
   }
   
   void Book::borrowBook(Member &bur,Date due) {
+    if (borrower == nullptr) {
     borrower = &bur;
-    std::cout << borrower->getName() << std::endl;
+    borrower->setBooksBorrowed(this);
     dueDate = new Date(due);
-      }
+    } else {
+      throw std::logic_error("Book already Borrowed");
+    }
+   }
   }
 
 
