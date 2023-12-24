@@ -2,9 +2,11 @@
 #define LIBRARIAN_H
 
 #include "Person.h"
+#include "MyNamespace.h"
 #include <string>
 
-class Librarian : public Person {
+namespace MyNamespace {
+  class Librarian : public Person {
  private :
   int staffId;
   int salary;
@@ -12,6 +14,7 @@ class Librarian : public Person {
   static std::vector<Member*> members;
   Librarian();
   Librarian(int staffId, std::string name, std::string address, std::string email, int salary);
+  Librarian();
   void addMember();
   void issueBook(int memberID, int bookID);
   void returnBook(int memberID, int bookID);
@@ -22,5 +25,5 @@ class Librarian : public Person {
   int getSalary();
   void setSalary(int salary);
 };
-
+}
 #endif
