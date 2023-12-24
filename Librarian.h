@@ -9,6 +9,7 @@ class Librarian : public Person {
   int staffId;
   int salary;
  public:
+  static std::vector<Member*> members;
   Librarian();
   Librarian(int staffId, std::string name, std::string address, std::string email, int salary);
   void addMember();

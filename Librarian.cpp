@@ -31,3 +31,21 @@ int Librarian::getSalary() {
   return salary;
 }
 
+void Librarian::addMember() {
+  int memberId;
+  std::cout << "Enter member ID: ";
+  std::cin >> memberId;
+  std::cout << std::endl;
+  std::string name;
+  std::cout << "Enter member name: ";
+  std::cin >> name;
+  std::cout << std::endl;
+  std::string address;
+  std::cout << "Enter member address: ";
+  std::cin >> address;
+  std::string email;
+  std::cout << "Enter email: ";
+  std::cin >> email;
+  Member* member = new Member(memberId,name,address,email);
+  members.push_back(member);
+}
