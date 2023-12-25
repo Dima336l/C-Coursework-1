@@ -13,7 +13,7 @@ namespace MyNamespace {
     delete borrower;
     delete dueDate;
   }
-  std::string Book::getBookID() {
+  std::string Book::getBookID() const {
     return std::to_string(bookID);
   }
   std::string Book::getBookName() {
@@ -58,6 +58,7 @@ namespace MyNamespace {
     borrower = &bur;
     borrower->setBooksBorrowed(this);
     dueDate = new Date(due);
+    std::cout <<"Book with ID " <<  this->getBookID() << " was successfully borrowed to member with ID " << borrower->getMemberID() << std::endl;
     } else {
       throw std::logic_error("Book already Borrowed");
     }

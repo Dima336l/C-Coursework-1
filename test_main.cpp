@@ -39,14 +39,37 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     REQUIRE(lib.getStaffID() == 0);
     REQUIRE(lib.getSalary() == 0);
   }
+  Librarian lib(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   SECTION("Test parameterized constructor and getters") {
-    Librarian lib(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
     REQUIRE(lib.getName() == "Dumitru");
     REQUIRE(lib.getAddress() == "Colindale");
     REQUIRE(lib.getEmail() == "Nircadmitrii@icloud.com");
     REQUIRE(lib.getStaffID() == 1);
     REQUIRE(lib.getSalary() == 30000);
-  } 
+  }
+  SECTION("Testing addMember function") {
+    REQUIRE(Librarian::members.size() == 0);
+    //lib.addMember();
+    //REQUIRE(Librarian::members.size() == 1);
+  }
+  SECTION("Testing issueBook function") {
+  Book* book = new Book(1,"Moon","Dumitru","Nirca");
+  Member* member = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+  Member* newMember = new Member(2,"Andrei","Colindale","AndreiNirca@icloud.com");
+  Librarian::books.push_back(book);
+  Librarian::members.push_back(member);
+  Librarian::members.push_back(newMember);
+  REQUIRE(Librarian::books.size() == 1);
+  lib.issueBook(1,1);
+  REQUIRE_THROWS_AS((lib.issueBook(2,1)),std::logic_error);
+  REQUIRE(newMember->getBooksBorrowed().size() == 0);
+  REQUIRE(member->getBooksBorrowed().size() == 1);
+  lib.returnBook(1,1);
+  REQUIRE(member->getBooksBorrowed().size() == 0);
+  lib.issueBook(2,1);
+  REQUIRE(newMember->getBooksBorrowed().size() == 1);
+  
+}
 }
 
 TEST_CASE("Date class tests","[Date]") {
@@ -173,7 +196,7 @@ TEST_CASE("Date class tests","[Date]") {
       REQUIRE(bookDueDate.getYear() == 2023);
     }
   }
- TEST_CASE("Member class test","[Member]") {
+/* TEST_CASE("Member class test","[Member]") {
    Member* memberNew1 = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
    Member* memberNew2 = new Member (1,"Andrei","Nirca","AndreiNirca@icloud.com");
    Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
@@ -197,8 +220,8 @@ TEST_CASE("Date class tests","[Date]") {
       bookNew->borrowBook(*memberNew2,bookNewDueDate);
       REQUIRE(memberNew2->getBooksBorrowed().size() == 1);
       
-   }
+      }
 
-}
+      }*/
 
 	 

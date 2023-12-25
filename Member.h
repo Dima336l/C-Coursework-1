@@ -7,7 +7,7 @@
 #include <vector>
 
 namespace MyNamespace {
-  class Book;
+class Book;
 class Member : public Person {
  private:
   int memberId;
