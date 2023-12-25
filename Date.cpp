@@ -65,6 +65,30 @@ namespace MyNamespace {
   Date MyNamespace::Date::getCurrentDate() {
     return currentDate;
   }
+  int Date::getDaysPassed() const {
+    Date currentDate = Date::getCurrentDate();
+    int daysPassed = 0;
+    int days1 = currentDate.getDay();
+    int month1 = currentDate.getMonth();
+    int year1 = currentDate.getYear();
+    int days2 = day;
+    int month2 = month;
+    int year2 = year;
+    while (year1 < year2 || (year1 == year2 && (month1 < month2 || (month1 == month2 && days1 < days2)))) {
+      daysPassed++;
+      days1++;
+      if (days1 > Date::daysInMonth(month1,year1)) {
+	days1 = 1;
+	month1++;
+	if (month1 > 12) {
+	  month1 = 1;
+	  year1++;
+	}
+      }
+    }
+    return daysPassed;
+    
+  }
   Date Date::addDays(int d) {
     if (isValidDate(day+d,month,year)) {
       day += d;
@@ -112,4 +136,3 @@ namespace MyNamespace {
   }
 
 }
-

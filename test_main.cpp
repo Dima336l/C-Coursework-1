@@ -174,6 +174,14 @@ TEST_CASE("Date class tests","[Date]") {
   REQUIRE(currentDate.getMonth() == 2);
   REQUIRE(currentDate.getYear() == 2023);
   }
+  SECTION("Test daysPassed function") {
+  Date bookDueDate(4,2,2023);
+  int daysPassed = bookDueDate.getDaysPassed();
+  REQUIRE(daysPassed == 3);
+  Date newBookDueDate(19,8,2023);
+  daysPassed = newBookDueDate.getDaysPassed();
+  REQUIRE(daysPassed == 199);
+}
 }
   TEST_CASE("Book class test","[Book]") {
     Date currentDate = Date::getCurrentDate();
