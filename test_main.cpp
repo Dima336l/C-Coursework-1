@@ -31,6 +31,9 @@ TEST_CASE("Person class tests", "[PERSON]") {
 }
 
 TEST_CASE("Librarian class tests", "[Librarian]") {
+  Book* book = new Book(1,"Moon","Dumitru","Nirca");
+  Member* member = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+  Member* newMember = new Member(2,"Andrei","Colindale","AndreiNirca@icloud.com");
   SECTION("Test default constructor and getters") {
     Librarian lib;
     REQUIRE(lib.getName() == "");
@@ -53,9 +56,6 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     //REQUIRE(Librarian::members.size() == 1);
   }
   SECTION("Testing issueBook function") {
-  Book* book = new Book(1,"Moon","Dumitru","Nirca");
-  Member* member = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-  Member* newMember = new Member(2,"Andrei","Colindale","AndreiNirca@icloud.com");
   Librarian::books.push_back(book);
   Librarian::members.push_back(member);
   Librarian::members.push_back(newMember);
@@ -68,8 +68,10 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
   REQUIRE(member->getBooksBorrowed().size() == 0);
   lib.issueBook(2,1);
   REQUIRE(newMember->getBooksBorrowed().size() == 1);
-  
 }
+  SECTION("Testing calculateFine function") {
+    
+  }
 }
 
 TEST_CASE("Date class tests","[Date]") {

@@ -167,7 +167,13 @@ namespace MyNamespace {
   }
   void Librarian::calFineForOneBook(Book* book) {
     Date bookDueDate = book->getDueDate();
-    int daysPassed = 
+    int daysPassed = bookDueDate.getDaysPassed();
+    const int finePerDay = 1;
+    int fineAmount = 0;
+    if (daysPassed != 0) {
+      std::cout << "The book with name " << book->getBookName() << " is " << daysPassed << " days past its due date." << std::endl;
+      std::cout << "The amount you owe to the library is " << daysPassed*finePerDay << "£." << std::endl;
+    }
     }
   
   void Librarian::calcFine(int memberID){
@@ -175,6 +181,10 @@ namespace MyNamespace {
     if (!(memberit != Librarian::members.end())) {
       std::cout << "Member with ID " << memberID << " was not found" << std::endl;
       return;
+    }
+    const auto& borrowedBooks = memberit->getBooksBorrowed();
+    for (const auto& book: borrowedBooks) {
+      Librarian::calcFineForOneBook(book);
     }
     
   }

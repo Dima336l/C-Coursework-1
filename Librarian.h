@@ -17,6 +17,7 @@ namespace MyNamespace {
     bool isValidEmail(const std::string & email);
     std::vector<Member*>::iterator findMemberByID(int memberID);
     std::vector<Book*>::iterator  findBookByID(int bookID);
+    void calFineForOneBook(Book* book);
     std::string getMemberName();
     std::string getMemberAddress();
     std::string getMemberEmail();
