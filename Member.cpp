@@ -24,10 +24,10 @@ namespace MyNamespace {
   return std::to_string(memberId);
 }
   
- const  std::vector <Book*>& Member::getBooksBorrowed() const {
+  std::vector <Book*>& Member::getBooksBorrowed() {
     return booksLoaned;
   }
-  std::vector <Book*>& Member::getBooksBorrowed() {
+  const std::vector<Book*>& Member::getBooksBorrowed() const {
     return booksLoaned;
   }
 

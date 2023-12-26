@@ -13,12 +13,12 @@ class Date {
   static int daysInMonth(int m, int y);
   static bool isLeapYear(int y);
  public:
-  static Date currentDate;
+  static Date* currentDate;
   Date(int d, int m, int y);
   Date(const Date& other);
   Date addDays(int d);
   static void setInitialDate();
-  static Date getCurrentDate();
+  static Date* getCurrentDate();
   int getDaysPassed() const;
   int getDay() const;
   int getMonth() const;

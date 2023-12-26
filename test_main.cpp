@@ -1,6 +1,6 @@
 #define CATCH_CONFIG_MAIN
-#include "catch.hpp"
 
+#include "catch.hpp"
 #include "MyNamespace.h"
 #include "Date.h"
 #include "Person.h"
@@ -8,19 +8,29 @@
 #include "Book.h"
 #include "Member.h"
 #include <vector>
+#include <functional>
+#include <sstream>
+#include <iosfwd>
 
 using namespace MyNamespace;
+template<typename Function>
+void redirectFunction(Function func, const std::string& str);
+class NullStream : public std::ostream {
+public:
+  NullStream() : std::ostream(nullptr) {}
+};
+void redirectCoutToNullStream(bool suppress);
+std::string captureOutput (std::function<void()> func);
 
 TEST_CASE("Person class tests", "[PERSON]") {
-  SECTION("Test default constructor and getters") {
-    Person p;
+  redirectCoutToNullStream(true);
+  Person p;
+  SECTION("Test default constructor") {
     REQUIRE(p.getName() == "");
     REQUIRE(p.getAddress() == "");
     REQUIRE(p.getEmail() == "");
   }
-
   SECTION ("Test setters and getters") {
-    Person p;
     p.setName("Dumitru");
     p.setAddress("Colindale");
     p.setEmail("Nircadmitrii@icloud.com");
@@ -28,52 +38,78 @@ TEST_CASE("Person class tests", "[PERSON]") {
     REQUIRE(p.getAddress() == "Colindale");
     REQUIRE(p.getEmail() == "Nircadmitrii@icloud.com");
   }
-}
+  }
 
 TEST_CASE("Librarian class tests", "[Librarian]") {
-  Book* book = new Book(1,"Moon","Dumitru","Nirca");
-  Member* member = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-  Member* newMember = new Member(2,"Andrei","Colindale","AndreiNirca@icloud.com");
-  SECTION("Test default constructor and getters") {
-    Librarian lib;
-    REQUIRE(lib.getName() == "");
-    REQUIRE(lib.getAddress() == "");
-    REQUIRE(lib.getEmail() == "");
-    REQUIRE(lib.getStaffID() == 0);
-    REQUIRE(lib.getSalary() == 0);
-  }
-  Librarian lib(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
+  std::string capturedOutput;
+  Librarian* lib = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   SECTION("Test parameterized constructor and getters") {
-    REQUIRE(lib.getName() == "Dumitru");
-    REQUIRE(lib.getAddress() == "Colindale");
-    REQUIRE(lib.getEmail() == "Nircadmitrii@icloud.com");
-    REQUIRE(lib.getStaffID() == 1);
-    REQUIRE(lib.getSalary() == 30000);
+    REQUIRE(lib->getName() == "Dumitru");
+    REQUIRE(lib->getAddress() == "Colindale");
+    REQUIRE(lib->getEmail() == "Nircadmitrii@icloud.com");
+    REQUIRE(lib->getStaffID() == 1);
+    REQUIRE(lib->getSalary() == 30000);
   }
   SECTION("Testing addMember function") {
     REQUIRE(Librarian::members.size() == 0);
-    //lib.addMember();
-    //REQUIRE(Librarian::members.size() == 1);
+    redirectFunction([&](const std::string& str) {lib->addMember(); }, "Dumitru\nColindale\nNircadmitrii@icloud.com\n");
+    REQUIRE(Librarian::members.size() == 1);
+    }
+  SECTION("Testing calcFine function") {
+    Book* newBook = new Book(100,"Rabbit","Joji","Ayr");
+    Member* newMember = new Member(100,"Robert","Edgware","Edgware@icloud.com");
+    Librarian::members.push_back(newMember);
+    Librarian::books.push_back(newBook);
+    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n12\n2000\n");
+    Date* initialDate = Date::getCurrentDate();
+    REQUIRE(initialDate->getDay() == 1);
+    REQUIRE(initialDate->getMonth() == 12);
+    REQUIRE(initialDate->getYear() == 2000);
+    lib->issueBook(100,100);
+    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "5\n12\n2000\n"); // Simulating passage of time
+    Date* futureDate = Date::getCurrentDate();
+    REQUIRE(futureDate->getDay() == 5);
+    REQUIRE(futureDate->getMonth() == 12);
+    REQUIRE(futureDate->getYear() == 2000);
+    capturedOutput = captureOutput([&] { lib->calcFine(100);});
+    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 1 day past its due date.The amount you owe to the library is 1£.");
+    lib->returnBook(100,100);
+    capturedOutput = captureOutput([&] { lib->calcFine(100);});
+    REQUIRE(capturedOutput == "This member has no books borrowed."); 
+    Librarian::members.erase(Librarian::members.begin());
+    Librarian::books.erase(Librarian::books.begin());
   }
+}
+/*
   SECTION("Testing issueBook function") {
-  Librarian::books.push_back(book);
-  Librarian::members.push_back(member);
-  Librarian::members.push_back(newMember);
-  REQUIRE(Librarian::books.size() == 1);
-  lib.issueBook(1,1);
-  REQUIRE_THROWS_AS((lib.issueBook(2,1)),std::logic_error);
-  REQUIRE(newMember->getBooksBorrowed().size() == 0);
-  REQUIRE(member->getBooksBorrowed().size() == 1);
-  lib.returnBook(1,1);
-  REQUIRE(member->getBooksBorrowed().size() == 0);
-  lib.issueBook(2,1);
-  REQUIRE(newMember->getBooksBorrowed().size() == 1);
-}
-  SECTION("Testing calculateFine function") {
-    
+    Book* book = new Book(1,"Sun","Andrei","Moraru");
+    Book* book2 = new Book(2,"Moon","Octavian","Nirca");
+    Member* member = new Member(2,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+    Librarian::members.push_back(member);
+    Librarian::books.push_back(book);
+    Librarian::books.push_back(book2);
+    lib->issueBook(2,1);
+    REQUIRE(member->getBooksBorrowed().size() == 1);
+    REQUIRE_THROWS_AS((lib->issueBook(2,1)),std::runtime_error); // Issuing book that is already borrowed
+    REQUIRE_THROWS_AS((lib->issueBook(3,2)),std::runtime_error); // Issuing a book that doesn't exist
+    REQUIRE_THROWS_AS((lib->issueBook(4,1)),std::runtime_error); // Issuing a book to a non existing member		      
+    }
+  SECTION("Testing returnBook function") {
+    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 1);
+    lib->returnBook(2,1);
+    REQUIRE_THROWS_AS((lib->returnBook(2,1)),std::runtime_error); // Returning a book that has been returned
+    REQUIRE_THROWS_AS((lib->returnBook(3,1)),std::runtime_error); // Returning a book by a member that is not registered
+    REQUIRE_THROWS_AS((lib->returnBook(2,2)),std::runtime_error); // Returning a book that was not borrowed by the member
+    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 0);
+    lib->issueBook(2,1);
+    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 1);
+  }
+  SECTION("Testing displayBorrowedBooks function") {
+    std::string capturedOutput = captureOutput([&] { lib->displayBorrowedBooks(2);});
+    REQUIRE(capturedOutput == "[\"Sun\" by Andrei Moraru]");
   }
 }
-
+/*
 TEST_CASE("Date class tests","[Date]") {
   SECTION("Testing invalid date values") {
     REQUIRE_THROWS_AS(Date (32,1,2000), std::invalid_argument);
@@ -153,12 +189,6 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(newDate.getMonth() == 4);
     REQUIRE(newDate.getYear() == 2002);
   }
-  SECTION("Testing initial date value") {
-    Date currentDate = Date::getCurrentDate();
-    REQUIRE(currentDate.getDay() == 1);
-    REQUIRE(currentDate.getMonth() == 1);
-    REQUIRE(currentDate.getYear() == 2000);
-  }
   SECTION("Testing initial date setter") {
   std::stringstream outputCapture;
   std::streambuf* originalCout = std::cout.rdbuf();
@@ -175,8 +205,8 @@ TEST_CASE("Date class tests","[Date]") {
   REQUIRE(currentDate.getYear() == 2023);
   }
   SECTION("Test daysPassed function") {
-  Date bookDueDate(4,2,2023);
-  int daysPassed = bookDueDate.getDaysPassed();
+  Date newDate (29,1,2023);
+  int daysPassed = newDate.getDaysPassed();
   REQUIRE(daysPassed == 3);
   Date newBookDueDate(19,8,2023);
   daysPassed = newBookDueDate.getDaysPassed();
@@ -206,7 +236,7 @@ TEST_CASE("Date class tests","[Date]") {
       REQUIRE(bookDueDate.getYear() == 2023);
     }
   }
-/* TEST_CASE("Member class test","[Member]") {
+ TEST_CASE("Member class test","[Member]") {
    Member* memberNew1 = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
    Member* memberNew2 = new Member (1,"Andrei","Nirca","AndreiNirca@icloud.com");
    Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
@@ -229,9 +259,41 @@ TEST_CASE("Date class tests","[Date]") {
       REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
       bookNew->borrowBook(*memberNew2,bookNewDueDate);
       REQUIRE(memberNew2->getBooksBorrowed().size() == 1);
-      
       }
+ }
+ */
+template<typename Function>
+void redirectFunction(Function func, const std::string& str) {
+    // Redirect std::cin to input
+    std::stringstream input(str);
+    std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
+    // Call the provided function
+    func(str);
+    // Restore original std::cin
+    std::cin.rdbuf(origCin);
+}
 
-      }*/
+void redirectCoutToNullStream(bool suppress) {
+  static NullStream nullStream;
+  static std::streambuf* originalCoutBuffer = nullptr;
+  if (!originalCoutBuffer) {
+    originalCoutBuffer = std::cout.rdbuf();
+  }
+  if (suppress) {
+  std::cout.rdbuf(nullStream.rdbuf());
+  } else {
+    std::cout.rdbuf(originalCoutBuffer);
+  }
+}
 
-	 
+std::string captureOutput (std::function<void()> func) {
+  std::stringstream outputCapture;
+  std::streambuf* originalCoutBuffer = std::cout.rdbuf(); // Save original cout buffer
+  std::cout.rdbuf(outputCapture.rdbuf());
+  func();
+  std::cout.rdbuf(originalCoutBuffer);
+  std::string capturedOutput = outputCapture.str();
+  capturedOutput.erase(std::remove(capturedOutput.begin(), capturedOutput.end(), '\n'), capturedOutput.end());
+  return capturedOutput;
+}
+

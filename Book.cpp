@@ -17,7 +17,7 @@ namespace MyNamespace {
     return std::to_string(bookID);
   }
   std::string Book::getBookName() {
-    return bookName;
+     return bookName;
   }
   std::string Book::getAuthorFirstName() {
     return authorFirstName;
@@ -25,44 +25,39 @@ namespace MyNamespace {
   std::string Book::getAuthorLastName() {
     return authorLastName;
   }
+  bool Book::checkIfDateSet() {
+    return dueDateNotSet;
+  }
   Date Book::getDueDate() {
     if (dueDateNotSet) {
-      throw std::logic_error("Due date not set. Set it first");
+      throw std::logic_error("Due date not set. Set it first.");
     }
       return *dueDate;
   }
-  void Book::setDueDate(Date currentDate) {
-    Date newDueDate= currentDate.addDays(3);
+  void Book::setDueDate(Date* currentDate) {
+    Date newDueDate= currentDate->addDays(3);
     dueDate = new Date(newDueDate);
     dueDateNotSet = false;
   }
   void Book::returnBook() {
-    if (borrower != nullptr) {
     std::vector<Book*>& bookVec = borrower->getBooksBorrowed();
     auto it = std::find(bookVec.begin(),bookVec.end(),this);
     if (it != bookVec.end()) {
      bookVec.erase(it);
-    }
-      delete dueDate;
-      dueDate = nullptr;
-      dueDateNotSet = true;
-      delete borrower;
-      borrower = nullptr;
-    } else {
-      throw std::logic_error("Book was not borrowed, can not be returned");
+     delete dueDate;
+     dueDate = nullptr;
+     dueDateNotSet = true;
+     delete borrower;
+     borrower = nullptr;
     }
   }
   
   void Book::borrowBook(Member &bur,Date due) {
-    if (borrower == nullptr) {
-    borrower = &bur;
-    borrower->setBooksBorrowed(this);
-    dueDate = new Date(due);
-    std::cout <<"Book with ID " <<  this->getBookID() << " was successfully borrowed to member with ID " << borrower->getMemberID() << std::endl;
-    } else {
-      throw std::logic_error("Book already Borrowed");
+      dueDate = new Date(due);
+      bur.setBooksBorrowed(this);
+      borrower = &bur;
+      std::cout <<'"'<< bookName <<'"'<< " by " << authorFirstName << " " << authorLastName <<" was successfully borrowed to member with ID " << borrower->getMemberID() <<"."<< std::endl;
     }
-   }
   }
 
 

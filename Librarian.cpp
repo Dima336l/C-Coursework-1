@@ -12,19 +12,11 @@ namespace MyNamespace {
   std::vector<Member*> Librarian::members;
   std::vector<Book*> Librarian::books;
   Librarian::Librarian(int staffID, std::string name, std::string address, std::string email, int sal) {
-    //Seting values using setters from base class
     setName(name);
     setAddress(address);
     setEmail(email);
-  
-    //Setting Libriarian-specific members
     Librarian::setStaffID(staffID);
     Librarian::setSalary(sal);
-  }
-
-  Librarian::Librarian() {
-    staffId = 0;
-    salary = 0;
   }
 
   void Librarian::setStaffID(int id) {
@@ -58,12 +50,12 @@ namespace MyNamespace {
       std::getline(std::cin, name);
       if (containsOnlyAlphabet(name)) {
 	if (name.empty()) {
-	  std::cout << "Name cannot be empty." << std::endl;
+	  throw std::runtime_error ("Name cannot be empty.");
 	} else {
 	  break;
 	}
       } else {
-	std::cout << "Invalid input. Member name should only contain leters." << std::endl;
+	throw std::runtime_error ("Invalid input. Member name should only contain leters.");
       }
     }
     return name;
@@ -77,7 +69,7 @@ namespace MyNamespace {
       if (!address.empty()) {
 	break;
       } else {
-	std::cout << "Invalid input. Address cannot be empty." << std::endl;
+	throw std::runtime_error ("Invalid input. Address cannot be empty.");
       }
     }
     return address;
@@ -92,10 +84,10 @@ namespace MyNamespace {
 	if (std::find_if(Librarian::members.begin(),Librarian::members.end(),[&email](Member* m) { return m->getEmail() == email; }) == Librarian::members.end())  {
 	  break;
 	}else {
-	  std::cout << "A member with this email is already registered." << std::endl;
+	  throw std::runtime_error ("A member with this email is already registered.");
 	} 
       } else {
-	std::cout << "Invalid email format. Please enter valid email." << std::endl;
+	throw std::runtime_error ("Invalid email format. Please enter valid email.");
       }
     }
     return email;
@@ -112,80 +104,129 @@ namespace MyNamespace {
 
 
   std::vector<Member*>::iterator Librarian::findMemberByID(int memberID) {
-    return std::find_if(Librarian::members.begin(), Librarian::members.end(),
-			[memberID](const Member* m) {
-			  return m->getMemberID() == std::to_string(memberID);
-			});
-  }
+    auto it = std::find_if(Librarian::members.begin(), Librarian::members.end(),
+			   [memberID](const Member* m) {
+            return m->getMemberID() == std::to_string(memberID);
+			   });
+    return it;
+    } 
 
   std::vector<Book*>::iterator Librarian::findBookByID(int bookID) {
-    return std::find_if(Librarian::books.begin(), Librarian::books.end(),
-			[bookID](const Book* b) {
-			  return b->getBookID() == std::to_string(bookID);
-			});
+    auto it = std::find_if(Librarian::books.begin(), Librarian::books.end(),
+			   [bookID](const Book* b) {
+			     return b->getBookID() == std::to_string(bookID);
+			   });
+    return it;
   }
 
-  void Librarian::handleBookIssue(std::vector<Member*>::iterator memberit, std::vector<Book*>::iterator bookit,int memberID, int bookID) {
-    Date currentDate = Date::getCurrentDate();
+  void Librarian::handleBookIssue(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit,int memberID, int bookID) {
+    Date* currentDate = Date::getCurrentDate();
     (*bookit)->setDueDate(currentDate);
     Date bookDueDate = (*bookit)->getDueDate();
     (*bookit)->borrowBook(**memberit,bookDueDate);
+  }
+
+  bool Librarian::handleMemberIt(std::vector<Member*>::iterator memberit,int memberID) {
+    if (memberit == Librarian::members.end()) {
+      throw std::runtime_error("Member with ID " +  std::to_string(memberID) +  " was not found.");
+      return true;
+  }
+    return false;
+  }
+
+  bool Librarian::handleBookIt(std::vector<Book*>::iterator bookit,int bookID) {
+    if (bookit == Librarian::books.end()) {
+      throw std::runtime_error ("Book with ID " + std::to_string(bookID) + " was not found.");
+      return true;
+  }
+    return false;
   }
 
 
   void Librarian::issueBook(int memberID, int bookID) {
     auto memberit = Librarian::findMemberByID(memberID);
     auto bookit = Librarian::findBookByID(bookID);
-    if (!(memberit != Librarian::members.end())) {
-      std::cout << "Member with ID " << memberID << " was not found" << std::endl;
+    if ((Librarian::handleMemberIt(memberit,memberID)) || (Librarian::handleBookIt(bookit,bookID))) {
       return;
     }
-    if (!(bookit != Librarian::books.end())) {
-      std::cout << "Book with ID " << bookID << " was not found" << std::endl;
-      return;
+    if (((*bookit)->checkIfDateSet())) {
+      Librarian::handleBookIssue(memberit,bookit,memberID,bookID);
+    }else {
+      throw std::runtime_error("Book with name " + (*bookit)->getBookName() + " is already borrowd my another member.");
     }
-    Librarian::handleBookIssue(memberit,bookit,memberID,bookID);
   }
-
-  void Librarian::handleBookReturn(std::vector<Member*>::iterator memberit, std::vector<Book*>::iterator bookit, int memberID, int bookID) {
-    std::cout << "Book with ID " << bookID << " was successfully returned by member with ID " << memberID << std::endl;
+  
+  void Librarian::handleBookReturn(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit, int memberID, int bookID) {
+    std::cout <<'"'<<(*bookit)->getBookName() <<'"'<< " by " <<(*bookit)->getAuthorFirstName() << " " << (*bookit)->getAuthorLastName()  << " was successfully returned by member with ID " << memberID <<"."<< std::endl;
     (*bookit)->returnBook();
   }
   
   void Librarian::returnBook(int memberID,int bookID) {
     auto memberit = Librarian::findMemberByID(memberID);
     auto bookit = Librarian::findBookByID(bookID);
-    if (!(memberit != Librarian::members.end())) {
-      std::cout << "Member with ID " << memberID << " was not found" << std::endl;
+    if ((Librarian::handleMemberIt(memberit,memberID)) || (Librarian::handleBookIt(bookit,bookID))) {
       return;
     }
-    if (!(bookit != Librarian::books.end())) {
-      std::cout << "Book with ID " << bookID << " was not found" << std::endl;
-      return;
+    const std::vector <Book*>& booksBorrowed = (*memberit)->getBooksBorrowed();
+    bool bookFound = false;
+    for (const Book* book : booksBorrowed) {
+      if (book->getBookID() == std::to_string(bookID)) {
+	bookFound = true;
+	break;
+      }
     }
-    Librarian::handleBookReturn(memberit,bookit,memberID,bookID);
-  }
-  void Librarian::calFineForOneBook(Book* book) {
+    if (bookFound) {
+      Librarian::handleBookReturn(memberit,bookit,memberID,bookID);
+    } else {
+      throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID));
+    }  
+  } 
+  void Librarian::calcFineForOneBook(Book* book) {
     Date bookDueDate = book->getDueDate();
     int daysPassed = bookDueDate.getDaysPassed();
     const int finePerDay = 1;
     int fineAmount = 0;
     if (daysPassed != 0) {
-      std::cout << "The book with name " << book->getBookName() << " is " << daysPassed << " days past its due date." << std::endl;
+      std::string dayStr = (daysPassed == 1) ? "day" : "days";
+      std::cout <<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
       std::cout << "The amount you owe to the library is " << daysPassed*finePerDay << "£." << std::endl;
+    } else {
+      
+      std::cout << '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is not due. You have " <<
     }
     }
   
   void Librarian::calcFine(int memberID){
     auto memberit = Librarian::findMemberByID(memberID);
-    if (!(memberit != Librarian::members.end())) {
-      std::cout << "Member with ID " << memberID << " was not found" << std::endl;
+    if (Librarian::handleMemberIt(memberit,memberID)) {
       return;
     }
-    const auto& borrowedBooks = memberit->getBooksBorrowed();
-    for (const auto& book: borrowedBooks) {
-      Librarian::calcFineForOneBook(book);
+    const auto& borrowedBooks = (*memberit)->getBooksBorrowed();
+    if (borrowedBooks.size() == 0) {
+      std::cout << "This member has no books borrowed." << std::endl;
+    }else {
+      for (const auto& book: borrowedBooks) {
+	Librarian::calcFineForOneBook(book);
+      }
     }
-    
+  }
+  void Librarian::displayBorrowedBooks(int memberID) {
+    auto memberit = Librarian::findMemberByID(memberID);
+    if (Librarian::handleMemberIt(memberit,memberID)) {
+      return;
+    }
+    const auto& borrowedBooks = (*memberit)->getBooksBorrowed();
+    if (borrowedBooks.size() == 0) {
+      throw std::runtime_error ("Member with ID " + std::to_string(memberID) + " has no books borrowed.");
+    }else {
+      int counter = 0;
+      std::cout << "[";
+    for (const auto& book: borrowedBooks) {
+      std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", ";
+      std::cout <<'"'<<book->getBookName() <<'"'<< " by " <<book->getAuthorFirstName() << " " << book->getAuthorLastName() << comma;
+      counter++;
+    }
+    std::cout << "]" << std::endl;
+    }
   }
 }

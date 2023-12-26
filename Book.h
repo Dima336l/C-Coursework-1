@@ -26,7 +26,8 @@ class Book {
   std::string getAuthorFirstName();
   std::string getAuthorLastName();
   Date getDueDate();
-  void setDueDate(Date dueDate);
+  bool checkIfDateSet();
+  void setDueDate(Date* dueDate);
   void returnBook();
   void borrowBook(Member &burrower, Date dueDate);
 };
