@@ -1,9 +1,13 @@
 #ifndef MYNAMESPACE_BOOK_H
 #define MYNAMESPACE_BOOK_H
 
-#include <string>
 #include "MyNamespace.h"
-#include <memory>
+#include "Date.h"
+#include "Member.h"
+#include <iostream>
+#include <string>
+#include <algorithm>
+#include <limits>
 
 namespace MyNamespace {
   class Date;
@@ -25,6 +29,8 @@ class Book {
   std::string getBookName();
   std::string getAuthorFirstName();
   std::string getAuthorLastName();
+  void resetDaysSetFlag();
+  int determineNumOfDays();
   Date getDueDate();
   bool checkIfDateSet();
   void setDueDate(Date* dueDate);

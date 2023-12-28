@@ -12,6 +12,8 @@ class Date {
   static bool isValidDate(int d, int m, int y);
   static int daysInMonth(int m, int y);
   static bool isLeapYear(int y);
+  int countDaysPassed();
+  int countDaysRemaining();
  public:
   static Date* currentDate;
   Date(int d, int m, int y);
@@ -19,7 +21,8 @@ class Date {
   Date addDays(int d);
   static void setInitialDate();
   static Date* getCurrentDate();
-  int getDaysPassed() const;
+  int compareDates () const;
+  int getDaysPassed(int compareDates);
   int getDay() const;
   int getMonth() const;
   int getYear() const;

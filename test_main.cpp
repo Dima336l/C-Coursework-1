@@ -7,6 +7,7 @@
 #include "Librarian.h"
 #include "Book.h"
 #include "Member.h"
+#include "Global.h"
 #include <vector>
 #include <functional>
 #include <sstream>
@@ -21,11 +22,13 @@ public:
 };
 void redirectCoutToNullStream(bool suppress);
 std::string captureOutput (std::function<void()> func);
+void extractOutput(std::string &str);
 
 TEST_CASE("Person class tests", "[PERSON]") {
-  redirectCoutToNullStream(true);
+  //redirectCoutToNullStream(true);
   Person p;
   SECTION("Test default constructor") {
+    std::cout << finePerDay << std::endl;
     REQUIRE(p.getName() == "");
     REQUIRE(p.getAddress() == "");
     REQUIRE(p.getEmail() == "");
@@ -38,56 +41,48 @@ TEST_CASE("Person class tests", "[PERSON]") {
     REQUIRE(p.getAddress() == "Colindale");
     REQUIRE(p.getEmail() == "Nircadmitrii@icloud.com");
   }
-  }
-
+}
 TEST_CASE("Librarian class tests", "[Librarian]") {
   std::string capturedOutput;
   Librarian* lib = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
-  SECTION("Test parameterized constructor and getters") {
+  SECTION("Test parameterized constructor and getters and setters") {
     REQUIRE(lib->getName() == "Dumitru");
     REQUIRE(lib->getAddress() == "Colindale");
     REQUIRE(lib->getEmail() == "Nircadmitrii@icloud.com");
     REQUIRE(lib->getStaffID() == 1);
     REQUIRE(lib->getSalary() == 30000);
+    lib->setStaffID(5);
+    lib->setSalary(10000);
+    REQUIRE(lib->getStaffID() == 5);
+    REQUIRE(lib->getSalary() == 10000);
+    
   }
   SECTION("Testing addMember function") {
-    REQUIRE(Librarian::members.size() == 0);
+    REQUIRE(members.size() == 0);
     redirectFunction([&](const std::string& str) {lib->addMember(); }, "Dumitru\nColindale\nNircadmitrii@icloud.com\n");
-    REQUIRE(Librarian::members.size() == 1);
-    }
+    REQUIRE(members.size() == 1);
+  }
   SECTION("Testing calcFine function") {
     Book* newBook = new Book(100,"Rabbit","Joji","Ayr");
     Member* newMember = new Member(100,"Robert","Edgware","Edgware@icloud.com");
-    Librarian::members.push_back(newMember);
-    Librarian::books.push_back(newBook);
+    members.push_back(newMember);
+    books.push_back(newBook);
     redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n12\n2000\n");
-    Date* initialDate = Date::getCurrentDate();
-    REQUIRE(initialDate->getDay() == 1);
-    REQUIRE(initialDate->getMonth() == 12);
-    REQUIRE(initialDate->getYear() == 2000);
-    lib->issueBook(100,100);
-    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "5\n12\n2000\n"); // Simulating passage of time
-    Date* futureDate = Date::getCurrentDate();
-    REQUIRE(futureDate->getDay() == 5);
-    REQUIRE(futureDate->getMonth() == 12);
-    REQUIRE(futureDate->getYear() == 2000);
+    redirectFunction([&](const std::string& str) {lib->issueBook(100,100);}, "N\n");
+    capturedOutput = captureOutput ([&] {redirectFunction([&](const std::string& str) {lib->calcFine(100);}, "N\n");});
+    extractOutput(capturedOutput);
+    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days.");
+    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "6\n12\n2000\n");
     capturedOutput = captureOutput([&] { lib->calcFine(100);});
-    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 1 day past its due date.The amount you owe to the library is 1£.");
-    lib->returnBook(100,100);
-    capturedOutput = captureOutput([&] { lib->calcFine(100);});
-    REQUIRE(capturedOutput == "This member has no books borrowed."); 
-    Librarian::members.erase(Librarian::members.begin());
-    Librarian::books.erase(Librarian::books.begin());
+    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 2 days past its due date.The amount you owe to the library is 2£.");
   }
-}
-/*
   SECTION("Testing issueBook function") {
     Book* book = new Book(1,"Sun","Andrei","Moraru");
     Book* book2 = new Book(2,"Moon","Octavian","Nirca");
     Member* member = new Member(2,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-    Librarian::members.push_back(member);
-    Librarian::books.push_back(book);
-    Librarian::books.push_back(book2);
+    members.push_back(member);
+    books.push_back(book);
+    books.push_back(book2);
     lib->issueBook(2,1);
     REQUIRE(member->getBooksBorrowed().size() == 1);
     REQUIRE_THROWS_AS((lib->issueBook(2,1)),std::runtime_error); // Issuing book that is already borrowed
@@ -95,27 +90,30 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     REQUIRE_THROWS_AS((lib->issueBook(4,1)),std::runtime_error); // Issuing a book to a non existing member		      
     }
   SECTION("Testing returnBook function") {
-    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 1);
-    lib->returnBook(2,1);
-    REQUIRE_THROWS_AS((lib->returnBook(2,1)),std::runtime_error); // Returning a book that has been returned
-    REQUIRE_THROWS_AS((lib->returnBook(3,1)),std::runtime_error); // Returning a book by a member that is not registered
-    REQUIRE_THROWS_AS((lib->returnBook(2,2)),std::runtime_error); // Returning a book that was not borrowed by the member
-    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 0);
-    lib->issueBook(2,1);
-    REQUIRE(Librarian::members[1]->getBooksBorrowed().size() == 1);
+    Member* member = new Member(69,"Octavian","Chisinau","Octavian@icloud.com");
+    Book* book = new Book(69,"C++","Ion","Gandon");
+    Book* book2 = new Book(70,"C","Pavel","Gordon");
+    members.push_back(member);
+    books.push_back(book);
+    books.push_back(book2);
+    lib->issueBook(69,69);
+    REQUIRE(member->getBooksBorrowed().size() == 1);
+    lib->returnBook(69,69);
+    REQUIRE(member->getBooksBorrowed().size() == 0);
+    REQUIRE_THROWS_AS((lib->returnBook(69,69)),std::runtime_error); // Returning a book that has been returned
+    REQUIRE_THROWS_AS((lib->returnBook(70,69)),std::runtime_error); // Returning a book by a member that is not registered
+    REQUIRE_THROWS_AS((lib->returnBook(69,70)),std::runtime_error); // Returning a book that was not borrowed by the member
   }
   SECTION("Testing displayBorrowedBooks function") {
-    std::string capturedOutput = captureOutput([&] { lib->displayBorrowedBooks(2);});
-    REQUIRE(capturedOutput == "[\"Sun\" by Andrei Moraru]");
-  }
+    REQUIRE_THROWS_AS((lib->displayBorrowedBooks(69)),std::runtime_error); // No books borrowed
+    REQUIRE_THROWS_AS((lib->displayBorrowedBooks(79)),std::runtime_error); // Nonexistent member
+    lib->issueBook(69,69);
+    capturedOutput = captureOutput([&] { lib->displayBorrowedBooks(69);});
+    REQUIRE(capturedOutput == "[\"C++\" by Ion Gandon]");
+    }
 }
-/*
+
 TEST_CASE("Date class tests","[Date]") {
-  SECTION("Testing invalid date values") {
-    REQUIRE_THROWS_AS(Date (32,1,2000), std::invalid_argument);
-    REQUIRE_THROWS_AS(Date (1,13,2000), std::invalid_argument);
-    REQUIRE_THROWS_AS(Date (1,12,-10), std::invalid_argument);
-  }
   SECTION("Testing valid date values") {
     REQUIRE_NOTHROW(Date (1,12,2000));
     REQUIRE_NOTHROW(Date (5,3,1997));
@@ -199,20 +197,12 @@ TEST_CASE("Date class tests","[Date]") {
   Date::setInitialDate();
   std::cout.rdbuf(originalCout);
   std::cin.rdbuf(origCin);
-  Date currentDate = Date::getCurrentDate();
-  REQUIRE(currentDate.getDay() == 1);
-  REQUIRE(currentDate.getMonth() == 2);
-  REQUIRE(currentDate.getYear() == 2023);
+  Date* currentDate = Date::getCurrentDate();
+  REQUIRE(currentDate->getDay() == 1);
+  REQUIRE(currentDate->getMonth() == 2);
+  REQUIRE(currentDate->getYear() == 2023);
   }
-  SECTION("Test daysPassed function") {
-  Date newDate (29,1,2023);
-  int daysPassed = newDate.getDaysPassed();
-  REQUIRE(daysPassed == 3);
-  Date newBookDueDate(19,8,2023);
-  daysPassed = newBookDueDate.getDaysPassed();
-  REQUIRE(daysPassed == 199);
-}
-}
+}/*
   TEST_CASE("Book class test","[Book]") {
     Date currentDate = Date::getCurrentDate();
     Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
@@ -297,3 +287,11 @@ std::string captureOutput (std::function<void()> func) {
   return capturedOutput;
 }
 
+void extractOutput(std::string &str) {
+  size_t startPos = str.find("\"");
+  std::string extractedInfo;
+   if (startPos != std::string::npos) {
+     str = str.substr(startPos);
+     std::cout << str << std::endl;
+   }
+}

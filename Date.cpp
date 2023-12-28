@@ -50,6 +50,21 @@ namespace MyNamespace {
     }
     year = y;
   }
+
+  int Date::compareDates() const {
+    Date currentDate = *Date::getCurrentDate();
+    int day1 = currentDate.getDay();
+    int month1 = currentDate.getMonth();
+    int year1 = currentDate.getYear();
+    if (year != year1)  {
+      return (year > year1)? 1 : -1;
+    } else if (month != month1) {
+      return (month > month1) ? 1 : -1;
+    } else {
+      return (day > day1) ? 1 : ((day == day1) ? 0 : -1);
+    }
+  }
+  
   void Date::setInitialDate() {
     int d,m,y;
     do {
@@ -65,29 +80,65 @@ namespace MyNamespace {
   Date* MyNamespace::Date::getCurrentDate() {
     return currentDate;
   }
-  int Date::getDaysPassed() const {
-    Date* currentDate = Date::getCurrentDate();
-    int daysPassed = 0;
-    int days1 = currentDate->getDay();
-    int month1 = currentDate->getMonth();
-    int year1 = currentDate->getYear();
-    int days2 = day;
-    int month2 = month;
-    int year2 = year;
-    while (year1 > year2 || (year1 == year2 && (month1 > month2 || (month1 == month2 && days1 > days2)))) {
-      daysPassed++;
-      days2++;
-      if (days2 > Date::daysInMonth(month2,year2)) {
-	days2 = 1;
+
+  int Date::countDaysRemaining() {
+    int daysRemaining = 0;
+    Date currentDate = *Date::getCurrentDate();
+    int day1 = day;
+    int month1 = month;
+    int year1 = year;
+    int day2 = currentDate.getDay();
+    int month2 = currentDate.getMonth();
+    int year2 = currentDate.getYear();
+     while (year2 < year1 || (year2 == year1 && (month2 < month1 || (month2 == month1 && day2 < day1)))) {
+      daysRemaining++;
+      day2++;
+      if (day2 > Date::daysInMonth(month2,year2)) {
+	day2 = 1;
 	month2++;
 	if (month2 > 12) {
 	  month2 = 1;
 	  year2++;
 	}
       }
-    }
-      return daysPassed;
   }
+     return daysRemaining;
+  }
+  
+  int Date::countDaysPassed() {
+    int daysPassed = 0;
+    Date currentDate = *Date::getCurrentDate();
+    int day1 = day;
+    int month1 = month;
+    int year1 = year;
+    int days2 = currentDate.getDay();
+    int month2 = currentDate.getMonth();
+    int year2 = currentDate.getYear();
+     while (year1 < year2 || (year1 == year2 && (month1 < month2 || (month1 == month2 && day1 < days2)))) {
+      daysPassed++;
+      day1++;
+      if (day1 > Date::daysInMonth(month1,year1)) {
+	day1 = 1;
+	month1++;
+	if (month1 > 12) {
+	  month1 = 1;
+	  year1++;
+	}
+      }
+  }
+     return daysPassed;
+  }
+  
+  int Date::getDaysPassed(int hasPassed) {
+    int daysPassed = 0;
+    if (hasPassed == -1) {
+      daysPassed =  this->countDaysPassed();
+    } else if (hasPassed == 1) {
+      daysPassed =  this->countDaysRemaining();
+    }
+    return daysPassed;
+  }
+
   Date Date::addDays(int d) {
     if (isValidDate(day+d,month,year)) {
       day += d;
