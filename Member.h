@@ -4,7 +4,10 @@
 #include "MyNamespace.h"
 #include "Person.h"
 #include "Book.h"
+#include <string>
 #include <vector>
+#include <iostream>
+
 
 namespace MyNamespace {
   class Book;

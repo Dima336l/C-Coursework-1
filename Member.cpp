@@ -1,8 +1,5 @@
 #include "Member.h"
-#include "Book.h"
-#include <string>
-#include <vector>
-#include <iostream>
+
 
 namespace MyNamespace {
   Member::Member(int memberID,std::string n,std::string ad,std::string em) {

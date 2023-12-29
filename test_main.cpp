@@ -25,7 +25,7 @@ std::string captureOutput (std::function<void()> func);
 void extractOutput(std::string &str);
 
 TEST_CASE("Person class tests", "[PERSON]") {
-  //redirectCoutToNullStream(true);
+  redirectCoutToNullStream(true);
   Person p;
   SECTION("Test default constructor") {
     std::cout << finePerDay << std::endl;
@@ -119,7 +119,11 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE_NOTHROW(Date (5,3,1997));
     REQUIRE_NOTHROW(Date (10,1,1000));
   }
-  SECTION("Testing modification of date components") {
+  SECTION("Testing invalid date values") {
+    REQUIRE_THROWS_AS((Date (-5,3,2000)),std::invalid_argument);
+    REQUIRE_THROWS_AS((Date (32,13,3000)),std::invalid_argument);
+  }
+  SECTION("Testing date setters and getters") {
     Date date(1,12,2000);
     REQUIRE(date.getDay() == 1);
     REQUIRE(date.getMonth()== 12);
@@ -166,6 +170,7 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(newDate.getMonth() == 1);
     REQUIRE(newDate.getYear() == 2001);
   }
+ 
   SECTION("Testing add days function leap year") {
     Date date (25,2,2024);
     Date newDate = date.addDays(4);
@@ -188,42 +193,71 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(newDate.getYear() == 2002);
   }
   SECTION("Testing initial date setter") {
-  std::stringstream outputCapture;
-  std::streambuf* originalCout = std::cout.rdbuf();
-  std::cout.rdbuf(outputCapture.rdbuf());
-  std::stringstream input;
-  input << "1\n2\n2023\n";
-  std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
-  Date::setInitialDate();
-  std::cout.rdbuf(originalCout);
-  std::cin.rdbuf(origCin);
+    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n2\n2023\n");
   Date* currentDate = Date::getCurrentDate();
   REQUIRE(currentDate->getDay() == 1);
   REQUIRE(currentDate->getMonth() == 2);
   REQUIRE(currentDate->getYear() == 2023);
   }
-}/*
+   SECTION("Testing compare dates function") {
+     int compareDates;
+    Date date1(1,2,2023);
+    compareDates = date1.compareDates();
+    REQUIRE(compareDates == 0);
+    date1.setDay(5);
+    compareDates = date1.compareDates();
+    REQUIRE(compareDates == 1);
+    date1.setMonth(1);
+    compareDates = date1.compareDates();
+    REQUIRE(compareDates == -1);
+    
+  }
+   SECTION("Testing countDaysPassed and getDaysPassed functions") {
+     Date date1 (30,1,2023);
+     int daysRemaining = date1.countDaysPassed();
+     int compareDates = date1.compareDates();
+     int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
+     REQUIRE(daysRemaining == 2);
+     REQUIRE(daysRemainingFromCountDaysPassed == 2);
+   }
+   SECTION("Testing countDaysRemaining and getDaysPassed function") {
+     Date date1 (5,2,2023);
+     int daysRemaining = date1.countDaysRemaining();
+     int compareDates = date1.compareDates();
+     int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
+     REQUIRE(daysRemaining == 4);
+     REQUIRE(daysRemainingFromCountDaysPassed == 4);
+   }
+}
   TEST_CASE("Book class test","[Book]") {
-    Date currentDate = Date::getCurrentDate();
-    Member member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-    Book book (1,"Sun","Dumitru","Nirca");
+    Member* member = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+    Book* book = new Book (1,"Sun","Dumitru","Nirca");
     SECTION("Testing Book Parameterized constructor and Getters") {
-      REQUIRE(book.getBookID() == "1");
-      REQUIRE(book.getAuthorFirstName() == "Dumitru");
-      REQUIRE(book.getAuthorLastName() == "Nirca");
+      REQUIRE(book->getBookID() == "1");
+      REQUIRE(book->getAuthorFirstName() == "Dumitru");
+      REQUIRE(book->getAuthorLastName() == "Nirca");
   }
     SECTION("Testing getDueDate function when due date not set") {
-      REQUIRE_THROWS_AS(book.getDueDate(),std::logic_error);
+      REQUIRE_THROWS_AS(book->getDueDate(),std::logic_error);
     }
     SECTION("Testing setDueDate and getDueDate functions") {
-      REQUIRE(currentDate.getDay() == 1);
-      REQUIRE(currentDate.getMonth() == 2);
-      REQUIRE(currentDate.getYear() == 2023);
-      book.setDueDate(currentDate);
-      Date bookDueDate = book.getDueDate();
+      Date* currentDate = Date::getCurrentDate();
+      book->setDueDate(currentDate);
+      Date bookDueDate = book->getDueDate();
       REQUIRE(bookDueDate.getDay() == 4);
       REQUIRE(bookDueDate.getMonth() == 2);
       REQUIRE(bookDueDate.getYear() == 2023);
+    }
+    SECTION("Testing borrowBook and returnBook function") {
+      Member* member1 = new Member(500,"Ion","Chisinau","Ion@mail.ru");
+      Book* book2 = new Book(100,"C#","John","Miller");
+      Date* currentDate = Date::getCurrentDate();
+      std::string capturedOutput = captureOutput([&] {book2->borrowBook(*member1,*currentDate);});
+      REQUIRE(capturedOutput == "\"C#\" by John Miller was successfully borrowed to member with ID 500.");
+      REQUIRE(member1->getBooksBorrowed().size() == 1);
+      book2->returnBook();
+      REQUIRE(member1->getBooksBorrowed().size() == 0);
+      REQUIRE_THROWS_AS((book2->getDueDate()),std::logic_error);
     }
   }
  TEST_CASE("Member class test","[Member]") {
@@ -233,33 +267,22 @@ TEST_CASE("Date class tests","[Date]") {
    size_t initialSize;
    size_t finalSize;
    SECTION("Testing member constructor, burrowBook and returnBook functions") {
-      REQUIRE(memberNew1->getMemberID() == "1");
-      REQUIRE(memberNew1->getName() == "Dumitru");
-      REQUIRE(memberNew1->getAddress() == "Colindale");
-      REQUIRE(memberNew1->getEmail() == "Nircadmitrii@icloud.com");
-      Date currentDate = Date::getCurrentDate();
-      bookNew->setDueDate(currentDate);
-      Date bookNewDueDate = bookNew->getDueDate();
-      REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
-      REQUIRE_THROWS_AS((bookNew->returnBook()),std::logic_error);
-      bookNew->borrowBook(*memberNew1,bookNewDueDate);
-      REQUIRE_THROWS_AS((bookNew->borrowBook(*memberNew2,bookNewDueDate)),std::logic_error);
-      REQUIRE(memberNew1->getBooksBorrowed().size() == 1);
-      bookNew->returnBook();
-      REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
-      bookNew->borrowBook(*memberNew2,bookNewDueDate);
-      REQUIRE(memberNew2->getBooksBorrowed().size() == 1);
-      }
+     REQUIRE(memberNew1->getMemberID() == "1");
+     REQUIRE(memberNew1->getName() == "Dumitru");
+     REQUIRE(memberNew1->getAddress() == "Colindale");
+     REQUIRE(memberNew1->getEmail() == "Nircadmitrii@icloud.com");
+   }
+   SECTION("Testing getBooksBorrowed and setBooksBorrowed functions") {
+     REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
+     memberNew1->setBooksBorrowed(bookNew);
+     REQUIRE(memberNew1->getBooksBorrowed().size() == 1);
  }
- */
+}
 template<typename Function>
 void redirectFunction(Function func, const std::string& str) {
-    // Redirect std::cin to input
     std::stringstream input(str);
     std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
-    // Call the provided function
     func(str);
-    // Restore original std::cin
     std::cin.rdbuf(origCin);
 }
 

@@ -2,6 +2,8 @@
 #define MYNAMESPACE_DATE_H
 
 #include "MyNamespace.h"
+#include <iostream>
+#include <stdexcept>
 
 namespace MyNamespace {
 class Date {
@@ -12,9 +14,9 @@ class Date {
   static bool isValidDate(int d, int m, int y);
   static int daysInMonth(int m, int y);
   static bool isLeapYear(int y);
+ public:
   int countDaysPassed();
   int countDaysRemaining();
- public:
   static Date* currentDate;
   Date(int d, int m, int y);
   Date(const Date& other);

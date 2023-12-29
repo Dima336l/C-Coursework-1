@@ -1,7 +1,6 @@
 #include "MyNamespace.h"
 #include "Date.h"
-#include <iostream>
-#include <stdexcept>
+
 
 namespace MyNamespace {
   Date* Date::currentDate = nullptr;
