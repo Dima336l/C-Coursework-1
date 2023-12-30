@@ -1,13 +1,5 @@
 #include "Librarian.h"
-#include "Member.h"
-#include "Date.h"
-#include "Global.h"
-#include <string>
-#include <vector>
-#include <iostream>
-#include <regex>
-#include <limits>
-#include <algorithm>
+
 
 namespace MyNamespace {
   Librarian::Librarian(int staffID, std::string name, std::string address, std::string email, int sal) {

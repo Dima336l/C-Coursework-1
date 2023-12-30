@@ -4,10 +4,15 @@
 #include "MyNamespace.h"
 #include "Person.h"
 #include "Member.h"
+#include "Date.h"
 #include "Book.h"
 #include "Global.h"
 #include <string>
 #include <vector>
+#include <iostream>
+#include <regex>
+#include <limits>
+#include <algorithm>
 
 namespace MyNamespace {
   class Librarian : public Person {
