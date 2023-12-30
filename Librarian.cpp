@@ -73,8 +73,11 @@ namespace MyNamespace {
     std::string email;
     while (true) {
       std::cout << "Enter email: ";
-      std::cin >> email;
-      if (Librarian::isValidEmail(email)) {
+      std::getline (std::cin,email);
+      if (email.empty()) {
+	throw std::runtime_error ("Email cannot be empty.");
+      }
+      else if (Librarian::isValidEmail(email)) {
 	if (std::find_if(members.begin(),members.end(),[&email](Member* m) { return m->getEmail() == email; }) == members.end())  {
 	  break;
 	}else {
@@ -86,25 +89,49 @@ namespace MyNamespace {
     }
     return email;
   }
-  void Librarian::addMember() {;
-    std::string name,address,email;
-    int memberId = members.size() + 1;
-    name = Librarian::getMemberName();
-    address = Librarian::getMemberAddress();
-    email = Librarian::getMemberEmail();
-    std::cout << "Member with ID " << memberId << ", name " << name << ", address " << address << " and email " << email << " was successfully added to the system." << std::endl;
-    Member* member = new Member(memberId,name,address,email);
-    members.push_back(member);
+  void Librarian::addMember() {
+    bool nameSet = false;
+    bool addressSet = false;
+    bool emailSet = false;
+    while (true) {
+      try {
+	std::string memberName,memberAddress,memberEmail;
+	int memberId = members.size() + 1;
+	if (!nameSet) {
+	  memberName = Librarian::getMemberName();
+	  nameSet = true;
+	}
+	if (!addressSet) {
+	  memberAddress = Librarian::getMemberAddress();
+	  addressSet = true;
+	}
+	if (!emailSet) {
+	  memberEmail = Librarian::getMemberEmail();
+	  emailSet = true;
+	}
+	std::cout << "The member with the following details was successfully registered." << std::endl;
+	std::cout << "ID: " << memberId << std::endl;
+	std::cout << "Name: " << memberName << std::endl;
+	std::cout << "Address: " << memberAddress <<std::endl;
+	std::cout << "Email: " << memberEmail << std::endl;
+	Member* member = new Member(memberId,memberName,memberAddress,memberEmail);
+	members.push_back(member);
+	break;
+      }
+      catch (const std::runtime_error& e) {
+	std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+      }
+    }
   }
 
 
   std::vector<Member*>::iterator Librarian::findMemberByID(int memberID) {
     auto it = std::find_if(members.begin(), members.end(),
 			   [memberID](const Member* m) {
-            return m->getMemberID() == std::to_string(memberID);
+			     return m->getMemberID() == std::to_string(memberID);
 			   });
     return it;
-    } 
+  } 
 
   std::vector<Book*>::iterator Librarian::findBookByID(int bookID) {
     auto it = std::find_if(books.begin(), books.end(),
@@ -125,7 +152,7 @@ namespace MyNamespace {
     if (memberit == members.end()) {
       throw std::runtime_error("Member with ID " +  std::to_string(memberID) +  " was not found.");
       return true;
-  }
+    }
     return false;
   }
 
@@ -133,7 +160,7 @@ namespace MyNamespace {
     if (bookit == books.end()) {
       throw std::runtime_error ("Book with ID " + std::to_string(bookID) + " was not found.");
       return true;
-  }
+    }
     return false;
   }
 
@@ -190,7 +217,7 @@ namespace MyNamespace {
 	std::cout << "The amount you owe to the library is " << daysPassed*finePerDay << "£." << std::endl;
       } else if (dateComparasion == 1) {
 	std::cout << '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << "." << std::endl;
-	  }   
+      }   
     } else {
       std::cout << "The book is due today." << std::endl;
     }
@@ -209,8 +236,8 @@ namespace MyNamespace {
       }
     } while (isChoiceNotValid);
     if (std::toupper(option) == 'Y') {
-	while (true) {
-	  std::cout << "Please set the fine rate: ";
+      while (true) {
+	std::cout << "Please set the fine rate: ";
         if (std::cin >> finePerDay && finePerDay > 0){
 	  break;
 	} else {
@@ -218,12 +245,12 @@ namespace MyNamespace {
 	  std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
 	  throw std::runtime_error ("Invalid input. The fine must be an integer greater than 0");
 	}
-	}
-      } else {
-	finePerDay = 1;
       }
-      return finePerDay;
+    } else {
+      finePerDay = 1;
     }
+    return finePerDay;
+  }
   
   void Librarian::calcFine(int memberID){
     auto memberit = Librarian::findMemberByID(memberID);
@@ -254,12 +281,12 @@ namespace MyNamespace {
     }else {
       int counter = 0;
       std::cout << "[";
-    for (const auto& book: borrowedBooks) {
-      std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", ";
-      std::cout <<'"'<<book->getBookName() <<'"'<< " by " <<book->getAuthorFirstName() << " " << book->getAuthorLastName() << comma;
-      counter++;
-    }
-    std::cout << "]" << std::endl;
+      for (const auto& book: borrowedBooks) {
+	std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", ";
+	std::cout <<'"'<<book->getBookName() <<'"'<< " by " <<book->getAuthorFirstName() << " " << book->getAuthorLastName() << comma;
+	counter++;
+      }
+      std::cout << "]" << std::endl;
     }
   }
 }

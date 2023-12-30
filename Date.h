@@ -4,6 +4,7 @@
 #include "MyNamespace.h"
 #include <iostream>
 #include <stdexcept>
+#include <limits>
 
 namespace MyNamespace {
 class Date {
@@ -32,6 +33,7 @@ class Date {
   void setMonth(int m);
   void setYear(int y);
   void displayDate() const;
+  void handleInput(int& component, const std::string& prompt, const std::string& errorMessage);
 };
 }
 #endif

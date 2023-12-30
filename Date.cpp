@@ -63,125 +63,197 @@ namespace MyNamespace {
       return (day > day1) ? 1 : ((day == day1) ? 0 : -1);
     }
   }
+
+  void Date::handleInput(int& component, const std::string& prompt, const std::string& errorMessage) {
+    while (true) {
+        std::cout << prompt;
+        std::cin >> component;
+
+        if (std::cin.fail()) {
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cerr << "Invalid input. Please enter an integer for the " << errorMessage << "." << std::endl;
+            continue;
+        }
+
+        break;
+    }
+}
   
   void Date::setInitialDate() {
     int d,m,y;
-    do {
-    std::cout << "Enter day" << std::endl;
-    std::cin >> d;
-    std::cout << "Enter month" << std::endl;
-    std::cin >> m;
-    std::cout << "Enter year" << std::endl;
-    std::cin >> y;
-    } while (!isValidDate(d,m,y));
-    currentDate = new Date(d,m,y);
-  }
-  Date* MyNamespace::Date::getCurrentDate() {
-    return currentDate;
-  }
-
-  int Date::countDaysRemaining() {
-    int daysRemaining = 0;
-    Date currentDate = *Date::getCurrentDate();
-    int day1 = day;
-    int month1 = month;
-    int year1 = year;
-    int day2 = currentDate.getDay();
-    int month2 = currentDate.getMonth();
-    int year2 = currentDate.getYear();
-     while (year2 < year1 || (year2 == year1 && (month2 < month1 || (month2 == month1 && day2 < day1)))) {
-      daysRemaining++;
-      day2++;
-      if (day2 > Date::daysInMonth(month2,year2)) {
-	day2 = 1;
-	month2++;
-	if (month2 > 12) {
-	  month2 = 1;
-	  year2++;
+    bool daySet = false;
+    bool monthSet = false;
+    bool yearSet = false;
+    currentDate = new Date(1,12,2000);
+    while (true) {
+      if (!daySet) {
+	std::cout << "Enter day: ";
+	std::cin >> d;
+	if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Invalid input. Please enter an integer for the day." << std::endl;
+                continue;  // Skip the rest of the loop and prompt for input again
+            }
+	try {
+	  currentDate->setDay(d);
+	  daySet = true;
+	} catch (const std::invalid_argument& e) {
+	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  continue;
 	}
       }
-  }
-     return daysRemaining;
-  }
-  
-  int Date::countDaysPassed() {
-    int daysPassed = 0;
-    Date currentDate = *Date::getCurrentDate();
-    int day1 = day;
-    int month1 = month;
-    int year1 = year;
-    int days2 = currentDate.getDay();
-    int month2 = currentDate.getMonth();
-    int year2 = currentDate.getYear();
-     while (year1 < year2 || (year1 == year2 && (month1 < month2 || (month1 == month2 && day1 < days2)))) {
-      daysPassed++;
-      day1++;
-      if (day1 > Date::daysInMonth(month1,year1)) {
-	day1 = 1;
-	month1++;
-	if (month1 > 12) {
-	  month1 = 1;
-	  year1++;
+       if (!monthSet) {
+	std::cout << "Enter month: ";
+	std::cin >> m;
+	if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Invalid input. Please enter an integer for the day." << std::endl;
+                continue;  // Skip the rest of the loop and prompt for input again
+            }
+	try {
+	  currentDate->setMonth(m);
+	  monthSet = true;
+	} catch (const std::invalid_argument& e) {
+	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  continue;
 	}
       }
-  }
-     return daysPassed;
-  }
-  
-  int Date::getDaysPassed(int hasPassed) {
-    int daysPassed = 0;
-    if (hasPassed == -1) {
-      daysPassed =  this->countDaysPassed();
-    } else if (hasPassed == 1) {
-      daysPassed =  this->countDaysRemaining();
-    }
-    return daysPassed;
-  }
-
-  Date Date::addDays(int d) {
-    if (isValidDate(day+d,month,year)) {
-      day += d;
-    } else {
-      int remainingDays = d;
-      year += (remainingDays / 365);
-      remainingDays %= 365;
-      while (remainingDays > 0) {
-	int daysInMonth =Date::daysInMonth(month,year);
-	if (remainingDays > daysInMonth - day ) {
-	  remainingDays = remainingDays - (daysInMonth - day );
-	  month ++;
-      if (month > 12) {
-	month = 1;
-	year++;
-      }
-      day = 0;
-	} else {
-	day += remainingDays;
-	remainingDays = 0;
+        if (!yearSet) {
+	std::cout << "Enter year: ";
+	std::cin >> y;
+	if (std::cin.fail()) {
+                std::cin.clear();
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cerr << "Invalid input. Please enter an integer for the day." << std::endl;
+                continue;  // Skip the rest of the loop and prompt for input again
+            }
+	try {
+	  currentDate->setYear(y);
+	  yearSet = true;
+	} catch (const std::invalid_argument& e) {
+	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  continue;
 	}
       }
+
+      if (std::cin.fail()) {
+	std::cin.clear(); 
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	std::cerr << "Invalid input. Please enter integers for day, month, and year." << std::endl;
+	continue;
+      }
+      break;
     }
-    return Date(day,month,year);
   }
+    Date* MyNamespace::Date::getCurrentDate() {
+      return currentDate;
+    }
+
+    int Date::countDaysRemaining() {
+      int daysRemaining = 0;
+      Date currentDate = *Date::getCurrentDate();
+      int day1 = day;
+      int month1 = month;
+      int year1 = year;
+      int day2 = currentDate.getDay();
+      int month2 = currentDate.getMonth();
+      int year2 = currentDate.getYear();
+      while (year2 < year1 || (year2 == year1 && (month2 < month1 || (month2 == month1 && day2 < day1)))) {
+	daysRemaining++;
+	day2++;
+	if (day2 > Date::daysInMonth(month2,year2)) {
+	  day2 = 1;
+	  month2++;
+	  if (month2 > 12) {
+	    month2 = 1;
+	    year2++;
+	  }
+	}
+      }
+      return daysRemaining;
+    }
   
-  bool Date::isValidDate(int d, int m, int y) {
-    if (y < 0 || m < 1 || m > 12 || d < 1 || d > Date::daysInMonth(m,y)) {
-      return false;
-  }
-    return true;
-  }
-
-  int Date::daysInMonth(int m, int y) {
-    static const int days[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
-    int daysInMonth = days[m];
-    if (m == 2 && Date::isLeapYear(y)) {
-      daysInMonth = 29;
+    int Date::countDaysPassed() {
+      int daysPassed = 0;
+      Date currentDate = *Date::getCurrentDate();
+      int day1 = day;
+      int month1 = month;
+      int year1 = year;
+      int days2 = currentDate.getDay();
+      int month2 = currentDate.getMonth();
+      int year2 = currentDate.getYear();
+      while (year1 < year2 || (year1 == year2 && (month1 < month2 || (month1 == month2 && day1 < days2)))) {
+	daysPassed++;
+	day1++;
+	if (day1 > Date::daysInMonth(month1,year1)) {
+	  day1 = 1;
+	  month1++;
+	  if (month1 > 12) {
+	    month1 = 1;
+	    year1++;
+	  }
+	}
+      }
+      return daysPassed;
     }
-    return daysInMonth;
-  }
+  
+    int Date::getDaysPassed(int hasPassed) {
+      int daysPassed = 0;
+      if (hasPassed == -1) {
+	daysPassed =  this->countDaysPassed();
+      } else if (hasPassed == 1) {
+	daysPassed =  this->countDaysRemaining();
+      }
+      return daysPassed;
+    }
 
-  bool Date::isLeapYear(int y) {
-    return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
-  }
+    Date Date::addDays(int d) {
+      if (isValidDate(day+d,month,year)) {
+	day += d;
+      } else {
+	int remainingDays = d;
+	year += (remainingDays / 365);
+	remainingDays %= 365;
+	while (remainingDays > 0) {
+	  int daysInMonth =Date::daysInMonth(month,year);
+	  if (remainingDays > daysInMonth - day ) {
+	    remainingDays = remainingDays - (daysInMonth - day );
+	    month ++;
+	    if (month > 12) {
+	      month = 1;
+	      year++;
+	    }
+	    day = 0;
+	  } else {
+	    day += remainingDays;
+	    remainingDays = 0;
+	  }
+	}
+      }
+      return Date(day,month,year);
+    }
+  
+    bool Date::isValidDate(int d, int m, int y) {
+      if (y < 0 || m < 1 || m > 12 || d < 1 || d > Date::daysInMonth(m,y)) {
+	return false;
+      }
+      return true;
+    }
 
-}
+    int Date::daysInMonth(int m, int y) {
+      static const int days[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+      int daysInMonth = days[m];
+      if (m == 2 && Date::isLeapYear(y)) {
+	daysInMonth = 29;
+      }
+      return daysInMonth;
+    }
+
+    bool Date::isLeapYear(int y) {
+      return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
+    }
+
+  }

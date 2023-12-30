@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <iomanip>
 #include "MyNamespace.h"
 #include "Date.h"
 #include "Person.h"
@@ -18,11 +19,15 @@ namespace MyNamespace {
     Library(const std::string& fileName);
     void handleLibrary();
     void addBooks(std::vector<std::vector<std::string>> fileContent);
-    void addBook(std::string line);
+    void addBook(std::vector<std::vector<std::string>>, int i);
     std::vector<std::vector<std::string>> readFile();
     void welcomeMessage();
     void printBooks(std::vector<std::vector<std::string>> fileContent);
+    void addMember();
+    void displayOptions();
+    void handleMenu();
   private:
+    Librarian* librarian;
     std::string fileName;
   };
 }

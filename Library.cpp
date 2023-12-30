@@ -1,9 +1,11 @@
 #include "Library.h"
-#include <iomanip>
+
 
 
 namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
+    Date::setInitialDate();
+    librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   }
   std::vector<std::vector<std::string>> Library::readFile() {
     std::ifstream inputFile(fileName);
@@ -45,36 +47,56 @@ namespace MyNamespace {
     std::cout << "Welcome to the library" << std::endl;
   }
 
-  void Library::addBook(std::string line) {
-    
+  void Library::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
+    int bookID = std::stoi(cSVRows[i][0]);
+    std::string bookName = cSVRows[i][1];
+    std::string authorFirstName = cSVRows[i][3];
+    std::string authorLastName = cSVRows[i][4];
+    Book* book = new Book(bookID,bookName,authorFirstName,authorLastName);
+    books.push_back(book);
   }
 
   void Library::printBooks(std::vector<std::vector<std::string>> cSVRows) {
     std::vector<int> columnWidths = {10,50,13,20,19};
-    for (const auto& row : cSVRows) {
-	for (size_t i = 0; i < row.size(); ++i) {
-	  std::cout << std::setw(columnWidths[i]) << std::left << row[i];
-	  
+    for (int i = 0; i < cSVRows.size();i++) {
+      for (size_t j = 0; j < cSVRows[i].size(); ++j) {
+	std::cout << std::setw(columnWidths[j]) << std::left << cSVRows[i][j];
       }
-	std::cout << std::endl; 
+      std::cout << std::endl; 
     }
   }
   
   void Library::addBooks(std::vector<std::vector<std::string>> cSVRows) {
-    for (const auto& row : cSVRows) {
-      std::string bookID = row[0];
-      std::cout << bookID << std::endl; 
+    for (int i = 1; i < cSVRows.size();i++) {
+      addBook(cSVRows,i);
     }
+    std::cout << "Books size vector after addBooks " << books.size() << std::endl;
   }
+
+  void Library::addMember() {
+   
+  }
+
+  void Library::displayOptions() {
+    std::cout << "1. Add a member" << std::endl;
+    std::cout << "2. Issue a book" << std::endl;
+    std::cout << "3. Return a book" << std::endl;
+    std::cout << "4. Display books borrowed" << std::endl;
+    std::cout << "5. Calculate fine" << std::endl;
+  }
+
+  void Library::handleMenu() {
     
+  }
     
 
 
   void Library::handleLibrary() {
-    std::vector<std::vector<std::string>> cSVRows = readFile();
+    /*std::vector<std::vector<std::string>> cSVRows = readFile();
     welcomeMessage();
-    printBooks(cSVRows);
     addBooks(cSVRows);
+    librarian->addMember();*/
+ 
   }
   
 }
