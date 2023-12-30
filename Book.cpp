@@ -92,6 +92,7 @@ namespace MyNamespace {
       dueDate = new Date(due);
       bur.setBooksBorrowed(this);
       borrower = &bur;
+      std::cout << std::endl;
       std::cout <<'"'<< bookName <<'"'<< " by " << authorFirstName << " " << authorLastName <<" was successfully borrowed to member with ID " << borrower->getMemberID() <<"."<< std::endl;
     }
   }

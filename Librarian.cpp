@@ -90,13 +90,13 @@ namespace MyNamespace {
     return email;
   }
   void Librarian::addMember() {
+    std::string memberName,memberAddress,memberEmail;
     bool nameSet = false;
     bool addressSet = false;
     bool emailSet = false;
+    int memberId = members.size() + 1;
     while (true) {
       try {
-	std::string memberName,memberAddress,memberEmail;
-	int memberId = members.size() + 1;
 	if (!nameSet) {
 	  memberName = Librarian::getMemberName();
 	  nameSet = true;
@@ -109,6 +109,7 @@ namespace MyNamespace {
 	  memberEmail = Librarian::getMemberEmail();
 	  emailSet = true;
 	}
+	std::cout << std::endl;
 	std::cout << "The member with the following details was successfully registered." << std::endl;
 	std::cout << "ID: " << memberId << std::endl;
 	std::cout << "Name: " << memberName << std::endl;

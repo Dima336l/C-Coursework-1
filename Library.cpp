@@ -45,7 +45,8 @@ namespace MyNamespace {
   }
   
   void Library::welcomeMessage() {
-    std::cout << "Welcome to the library" << std::endl;
+    std::cout << std::endl;
+    std::cout << "Welcome to the library" << std::endl << std::endl;
     std::cout <<"Please enter today's date" << std::endl;
   }
 
@@ -58,7 +59,7 @@ namespace MyNamespace {
     books.push_back(book);
   }
 
-  void Library::printBooks(std::vector<std::vector<std::string>> cSVRows) {
+  void Library::displayBooks(std::vector<std::vector<std::string>> cSVRows) {
     std::vector<int> columnWidths = {10,50,13,20,19};
     for (int i = 0; i < cSVRows.size();i++) {
       for (size_t j = 0; j < cSVRows[i].size(); ++j) {
@@ -67,37 +68,143 @@ namespace MyNamespace {
       std::cout << std::endl; 
     }
   }
+
+  void Library::displayMembers() {
+    if (members.size() == 0) {
+      std::cout << "There are no members registered in the system." << std::endl;
+    }
+    else {
+      std::cout << std::setw(5) << std::left << "ID";
+      std::cout << std::setw(15) << std::left << "Name";
+      std::cout << std::setw(15) << std::left << "Address";
+      std::cout << "Email" << std::endl;
+      for (const auto& member: members) {
+	std::cout << std::setw(5) << std::left << member->getMemberID();
+	std::cout << std::setw(15) << std::left << member->getName();
+	std::cout << std::setw(15) << std::left << member->getAddress();
+	std::cout << member->getEmail() << std::endl;
+      }
+    }
+  }
   
   void Library::addBooks(std::vector<std::vector<std::string>> cSVRows) {
     for (int i = 1; i < cSVRows.size();i++) {
       addBook(cSVRows,i);
     }
-    std::cout << "Books size vector after addBooks " << books.size() << std::endl;
-  }
-
-  void Library::addMember() {
-   
   }
 
   void Library::displayOptions() {
-    std::cout << "1. Add a member" << std::endl;
-    std::cout << "2. Issue a book" << std::endl;
-    std::cout << "3. Return a book" << std::endl;
-    std::cout << "4. Display books borrowed" << std::endl;
-    std::cout << "5. Calculate fine" << std::endl;
-    std::cout << "6. Change date" << std::endl;
+    std::cout << std::endl;
+    std::cout << "1. Display books" << std::endl;
+    std::cout << "2. Display members" << std::endl;
+    std::cout << "3. Add a member" << std::endl;
+    std::cout << "4. Issue a book" << std::endl;
+    std::cout << "5. Return a book" << std::endl;
+    std::cout << "6. Display books borrowed" << std::endl;
+    std::cout << "7. Calculate fine" << std::endl;
+    std::cout << "8. Change date" << std::endl;
+    std::cout << "9. Exit" << std::endl << std::endl;
   }
 
-  void Library::handleMenu() {
-    
+  int Library::getUserChoice() {
+    int choice;
+    std::string input;
+    while (true) {
+      std::getline(std::cin,input);
+      if (input.empty()) {
+	std::cerr << "Input cannot be empty. Please enter a number." << std::endl;
+	continue;
+      }
+      try {
+	choice = std::stoi(input);
+	break;
+      } catch(const std::invalid_argument &) {
+	std::cerr << "Invalid input. Please enter a valid integer for your choice." << std::endl;
+      }
+    }
+
+    return choice;
   }
+
+  void Library::handleBookIssue() {
+    std::cout << "Enter book ID: ";
+    int bookID = getUserChoice();
+    std::cout << "Enter member ID: ";
+    int memberID = getUserChoice();
+    try {
+      librarian->issueBook(memberID,bookID);
+    } catch(const std::runtime_error& e) {
+      std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+    }
+  }
+  void Library::handleReturn() {
+    std::cout << "Enter book ID: ";
+    int bookID = getUserChoice();
+    std::cout << "Enter member ID: ";
+    int memberID = getUserChoice();
+    std::cout << std::endl;
+    try {
+      librarian->returnBook(memberID,bookID);
+    } catch(const std::runtime_error& e) {
+      std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+    }
+  }
+
+  void Library::addMember() {
+    librarian->addMember();
+  }
+  
+
+  void Library::handleMenu(std::vector<std::vector<std::string>> cSVRows) {
+    int choice;
+    do {
+      displayOptions();
+      std::cout << "Enter your choice: ";
+      choice = getUserChoice();
+      std::cout << std::endl;
+      switch(choice) {
+      case 1:
+	displayBooks(cSVRows);
+	break;
+      case 2:
+        displayMembers();
+	break;
+      case 3:
+        addMember();
+	break;
+      case 4:
+        handleBookIssue();
+	break;
+      case 5:
+        handleReturn();
+	break;
+      case 6:
+	std::cout << "You entered Option 6." << std::endl;
+	break;
+      case 7:
+	std::cout << "You entered Option 7." << std::endl;
+	break;
+      case 8:
+	std::cout << "You entered Option 8." << std::endl;
+	break;
+      case 9:
+	std::cout << "Goodbye." << std::endl;
+	break;
+      default:
+	std::cout <<"Invalid choice, please enter a number between 1 and 7." << std::endl;
+	break;
+      }
+    } while (choice != 9);
+  }
+
     
 
 
   void Library::handleLibrary() {
-    /*std::vector<std::vector<std::string>> cSVRows = readFile();
+    std::vector<std::vector<std::string>> cSVRows = readFile();
     addBooks(cSVRows);
-    librarian->addMember();*/
+    handleMenu(cSVRows);
+    
  
   }
   

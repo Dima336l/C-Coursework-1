@@ -126,6 +126,7 @@ namespace MyNamespace {
 	}
       }
     }
+    std::cout << std::endl;
     std::cout << "Date(" << currentDate->getDay() <<","<<currentDate->getMonth()<<","<<currentDate->getYear()<< ") was successfully set." << std::endl;
   }  
  

@@ -22,10 +22,13 @@ namespace MyNamespace {
     void addBook(std::vector<std::vector<std::string>>, int i);
     std::vector<std::vector<std::string>> readFile();
     void welcomeMessage();
-    void printBooks(std::vector<std::vector<std::string>> fileContent);
+    void displayBooks(std::vector<std::vector<std::string>> fileContent);
     void addMember();
     void displayOptions();
-    void handleMenu();
+    void handleMenu(std::vector<std::vector<std::string>> fileContent);
+    void displayMembers();
+    void handleBookIssue();
+    void handleReturn();
     int getUserChoice();
   private:
     Librarian* librarian;
