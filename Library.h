@@ -26,6 +26,7 @@ namespace MyNamespace {
     void addMember();
     void displayOptions();
     void handleMenu();
+    int getUserChoice();
   private:
     Librarian* librarian;
     std::string fileName;

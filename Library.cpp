@@ -4,6 +4,7 @@
 
 namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
+    welcomeMessage();
     Date::setInitialDate();
     librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   }
@@ -45,6 +46,7 @@ namespace MyNamespace {
   
   void Library::welcomeMessage() {
     std::cout << "Welcome to the library" << std::endl;
+    std::cout <<"Please enter today's date" << std::endl;
   }
 
   void Library::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
@@ -83,6 +85,7 @@ namespace MyNamespace {
     std::cout << "3. Return a book" << std::endl;
     std::cout << "4. Display books borrowed" << std::endl;
     std::cout << "5. Calculate fine" << std::endl;
+    std::cout << "6. Change date" << std::endl;
   }
 
   void Library::handleMenu() {
@@ -93,7 +96,6 @@ namespace MyNamespace {
 
   void Library::handleLibrary() {
     /*std::vector<std::vector<std::string>> cSVRows = readFile();
-    welcomeMessage();
     addBooks(cSVRows);
     librarian->addMember();*/
  
