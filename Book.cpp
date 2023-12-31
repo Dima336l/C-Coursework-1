@@ -40,42 +40,41 @@ namespace MyNamespace {
     bool isChoiceNotValid;
     int numOfDays;
     std::cout<< std::endl << "Would you like to use the default due date which is 3 days from today or choose another date?" << std::endl;
+    std::cout << "Enter 'Y' for custom date and 'N' for default: ";
     do {
-      std::cout << "Enter 'Y' for custom date and 'N' for default: ";
       std::cin.get(option);
       isChoiceNotValid = (std::toupper(option) != 'Y' && std::toupper(option) != 'N');
       if (isChoiceNotValid) {
-	std::cerr << "Invalid input, please enter 'Y' or 'N'" << std::endl;
+	std::cerr << "Invalid input, please enter 'Y' or 'N': ";
       }
     } while (isChoiceNotValid);
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     if (std::toupper(option) == 'Y') {
+      std::cout << "How many days from today would you like the set the due date to be: ";
       std::string input;
-	while (true) {
-	  std::cout << "How many days from today would you like the set the due date to be: ";
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+	while (true) { 
 	  std::getline(std::cin,input);
 	  if (input.empty()) {
-	    std::cerr << "Input cannot be empty. Please enter a number." << std::endl;
+	    std::cerr << "Input cannot be empty. Please enter a number: ";
 	    continue;
 	  }
-
 	  try {
 	    numOfDays = std::stoi(input);
 	  } catch (const std::invalid_argument &) {
-	    std::cerr << "Invalid input.Please enter an integer." << std::endl;
+	    std::cerr << "Invalid input.Please enter an integer: ";
 	    continue;
 	  }
 	  
         if (numOfDays > 0){
 	  break;
 	} else {
-	  //std::cin.clear();
-	  // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-	  std::cerr << "Invalid input. The number of days must be an integer greater than 0" << std::endl;;
+	  std::cerr << "Invalid input. The number of days must be an integer greater than 0: ";
 	}
 	}
       } else {
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
 	numOfDays = 3;
       }
     return numOfDays;
@@ -109,6 +108,8 @@ namespace MyNamespace {
       borrower = &bur;
       std::cout << std::endl;
       std::cout <<'"'<< bookName <<'"'<< " by " << authorFirstName << " " << authorLastName <<" was successfully borrowed to member with ID " << borrower->getMemberID() <<"."<< std::endl;
+      //std::cin.clear();
+      //std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
     }
   }
 

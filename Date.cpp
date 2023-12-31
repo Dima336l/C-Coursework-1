@@ -33,19 +33,22 @@ namespace MyNamespace {
   }
   void Date::setDay(int d) {
     if (!isValidDate(d,month,year)) {
-      throw std::invalid_argument("Invalid day value");
+      std::cerr << "Invalid day value, please enter a valid date: ";
+      throw std::runtime_error("Error occurred");
     }
     day = d;
   }
   void Date::setMonth(int m) {
     if (!isValidDate(day,m,year)) {
-      throw std::invalid_argument("Invalid month value");
+      std::cerr << "Invalid month value, please enter a valid month: ";
+      throw std::runtime_error("Error occurred");
     }
     month = m;
   }
   void Date::setYear(int y) {
     if (!isValidDate(day,month,y)) {
-      throw std::invalid_argument("Invalid year value");
+      std::cerr << "Invalid year value, please enter a valid year: ";
+      throw std::runtime_error("Error occurred");
     }
     year = y;
   }
@@ -64,25 +67,24 @@ namespace MyNamespace {
     }
   }
 
-  bool Date::handleInput(int& component, const std::string& prompt, const std::string& errorMessage) {
+  bool Date::handleInput(int& component, const std::string& errorMessage) {
     std::string input;
-    std::cout << prompt;
     getline(std::cin,input);
 
     if (std::cin.fail()) {
       std::cin.clear();
       std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-      std::cerr << "Invalid input. Please enter an integer for the " << errorMessage << "." << std::endl;
+      std::cerr << "Invalid input. Please enter an integer for the " << errorMessage << ": ";
       return false;
     }
     if (input.empty()) {
-      std::cerr << "Input cannot be empty. Please enter a valid value for " << errorMessage << "." << std::endl;
+      std::cerr << "Input cannot be empty. Please enter a valid value for " << errorMessage << ": ";
       return false;
     }
     try {
       component = std::stoi(input);
     } catch (const std::invalid_argument & e) {
-      std::cerr << "Invalid input. Please enter a valid integer for " << errorMessage << "." << std::endl;
+      std::cerr << "Invalid input. Please enter a valid integer for " << errorMessage << ": " ;
       return false;
     }
     return true;
@@ -94,41 +96,54 @@ namespace MyNamespace {
     bool yearSet = false;
     currentDate = new Date(1, 12, 2000);
 
+    std::cout << "Enter day: ";
     while (!daySet) {
-      if (currentDate->handleInput(d, "Enter day: ", "day")) {
+      if (currentDate->handleInput(d,"day")) {
 	try {
 	  currentDate->setDay(d);
 	  daySet = true;
-	} catch (const std::invalid_argument& e) {
+	}
+	catch (const std::invalid_argument& e) {
 	  std::cerr << "Invalid input: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {
+	  
+	  
 	}
       }
     }
-
+    std::cout << "Enter month: ";
     while (!monthSet) {
-      if (currentDate->handleInput(m, "Enter month: ", "month")) {
+      if (currentDate->handleInput(m, "month")) {
 	try {
 	  currentDate->setMonth(m);
 	  monthSet = true;
-	} catch (const std::invalid_argument& e) {
+	  
+	}catch (const std::invalid_argument& e) {
 	  std::cerr << "Invalid input: " << e.what() << std::endl;
+	}
+	catch (const std::exception& e) {  
 	}
       }
     }
-
+    std::cout << "Enter year: ";
     while (!yearSet) {
-      if (currentDate->handleInput(y, "Enter year: ", "year")) {
+      if (currentDate->handleInput(y, "year")) {
 	try {
 	  currentDate->setYear(y);
 	  yearSet = true;
-	} catch (const std::invalid_argument& e) {
+	} 
+	catch (const std::invalid_argument& e) {
 	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
+	catch (const std::exception& e) {
       }
+    }
     }
     std::cout << std::endl;
     std::cout << "Date(" << currentDate->getDay() <<","<<currentDate->getMonth()<<","<<currentDate->getYear()<< ") was successfully set." << std::endl;
-  }  
+  }
+    
  
   Date* MyNamespace::Date::getCurrentDate() {
     return currentDate;

@@ -29,6 +29,8 @@ namespace MyNamespace {
     void displayMembers();
     void handleBookIssue();
     void handleReturn();
+    void displayBorrowedBooks();
+    void changeDate();
     int getUserChoice();
   private:
     Librarian* librarian;

@@ -39,17 +39,16 @@ namespace MyNamespace {
 
   std::string Librarian::getMemberName() {
     std::string name;
-    while (true) {
-      std::cout << "Enter member name: ";
+    while (true) { 
       std::getline(std::cin, name);
       if (containsOnlyAlphabet(name)) {
 	if (name.empty()) {
-	  throw std::runtime_error ("Name cannot be empty.");
+	  throw std::runtime_error ("Name cannot be empty, please enter valid name: ");
 	} else {
 	  break;
 	}
       } else {
-	throw std::runtime_error ("Invalid input. Member name should only contain leters.");
+	throw std::runtime_error ("Invalid input. Member name should only contain leters, please enter valid name: ");
       }
     }
     return name;
@@ -57,13 +56,12 @@ namespace MyNamespace {
 
   std::string Librarian::getMemberAddress() {
     std::string address;
-    while (true) {
-      std::cout << "Enter member adress: ";
+    while (true) { 
       std::getline(std::cin, address);
       if (!address.empty()) {
 	break;
       } else {
-	throw std::runtime_error ("Invalid input. Address cannot be empty.");
+	throw std::runtime_error ("Invalid input. Address cannot be empty, please enter valid address: ");
       }
     }
     return address;
@@ -72,19 +70,18 @@ namespace MyNamespace {
   std::string Librarian::getMemberEmail() {
     std::string email;
     while (true) {
-      std::cout << "Enter email: ";
       std::getline (std::cin,email);
       if (email.empty()) {
-	throw std::runtime_error ("Email cannot be empty.");
+	throw std::runtime_error ("Email cannot be empty, please enter valid email: ");
       }
       else if (Librarian::isValidEmail(email)) {
 	if (std::find_if(members.begin(),members.end(),[&email](Member* m) { return m->getEmail() == email; }) == members.end())  {
 	  break;
 	}else {
-	  throw std::runtime_error ("A member with this email is already registered.");
+	  throw std::runtime_error ("A member with this email is already registered.Please enter another email: ");
 	} 
       } else {
-	throw std::runtime_error ("Invalid email format. Please enter valid email.");
+	throw std::runtime_error ("Invalid email format. Please enter valid email: ");
       }
     }
     return email;
@@ -94,18 +91,33 @@ namespace MyNamespace {
     bool nameSet = false;
     bool addressSet = false;
     bool emailSet = false;
+    bool addressPromptShown = false;
+    bool namePromptShown = false;
+    bool emailPromptShown = false;
     int memberId = members.size() + 1;
     while (true) {
       try {
 	if (!nameSet) {
+	  if (!namePromptShown) {
+	    std::cout << "Enter member name: ";
+	    namePromptShown = true;
+	  }
 	  memberName = Librarian::getMemberName();
 	  nameSet = true;
 	}
 	if (!addressSet) {
+	  if (!addressPromptShown) {
+	    std::cout << "Enter address: ";
+	    addressPromptShown = true;
+	  }
 	  memberAddress = Librarian::getMemberAddress();
 	  addressSet = true;
 	}
 	if (!emailSet) {
+	  if (!emailPromptShown) {
+	    std::cout << "Enter email: ";
+	    emailPromptShown = true;
+	  }
 	  memberEmail = Librarian::getMemberEmail();
 	  emailSet = true;
 	}
@@ -120,7 +132,7 @@ namespace MyNamespace {
 	break;
       }
       catch (const std::runtime_error& e) {
-	std::cerr << e.what() << std::endl;
+	std::cerr << e.what();
       }
     }
   }
@@ -151,7 +163,7 @@ namespace MyNamespace {
 
   bool Librarian::handleMemberIt(std::vector<Member*>::iterator memberit,int memberID) {
     if (memberit == members.end()) {
-      throw std::runtime_error("\nMember with ID " +  std::to_string(memberID) +  " was not found.");
+      std::cerr << "\nMember with ID " +  std::to_string(memberID) +  " was not found." << std::endl;
       return true;
     }
     return false;
@@ -159,7 +171,7 @@ namespace MyNamespace {
 
   bool Librarian::handleBookIt(std::vector<Book*>::iterator bookit,int bookID) {
     if (bookit == books.end()) {
-      throw std::runtime_error ("\nBook with ID " + std::to_string(bookID) + " was not found.");
+      std::cerr << "\nBook with ID " + std::to_string(bookID) + " was not found." << std::endl;
       return true;
     }
     return false;
@@ -175,7 +187,7 @@ namespace MyNamespace {
     if (((*bookit)->checkIfDateSet())) {
       Librarian::handleBookIssue(memberit,bookit,memberID,bookID);
     }else {
-      throw std::runtime_error("Book with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
+      throw std::runtime_error("\nBook with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
     }
   }
   
@@ -203,9 +215,7 @@ namespace MyNamespace {
       Librarian::handleBookReturn(memberit,bookit,memberID,bookID);
     } else {
       throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID) +".");
-    }
-    std::cin.clear();
-    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+    } 
   }
 
   
@@ -230,24 +240,37 @@ namespace MyNamespace {
   int Librarian::determineFine() {
     char option;
     bool isChoiceNotValid;
+    int finePerDay;
     std::cout << "Would you like to use the default fine of 1£ or would you like to set up a custom amount?" << std::endl;
+    std::cout << "Enter 'Y' for custom amount and 'N' for default: ";
     do {
-      std::cout << "Enter 'Y' for custom amount and 'N' for default: ";
       std::cin.get(option);
+      std::cin.clear();
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
       isChoiceNotValid = (std::toupper(option) != 'Y' && std::toupper(option) != 'N');
       if (isChoiceNotValid) {
-        throw std::runtime_error("Invalid input, please enter 'Y' or 'N'");
+	std::cerr << "Invalid input, please enter 'Y' or 'N': ";
       }
-    } while (!isChoiceNotValid);
+    } while (isChoiceNotValid);
     if (std::toupper(option) == 'Y') {
+      std::string input;
       while (true) {
 	std::cout << "Please set the fine rate: ";
-        if (std::cin >> finePerDay && finePerDay > 0){
+	std::getline(std::cin,input);
+	if (input.empty()) {
+	  std::cerr << "Input cannot be empty. Please enter a number: ";
+	  continue;
+	}
+	try {
+	  finePerDay = std::stoi(input);
+	} catch (const std::invalid_argument &) {
+	  std::cerr << "Invalid input. Please enter an integer: "; 
+	  continue;
+	}
+        if (finePerDay > 0){
 	  break;
 	} else {
-	  std::cin.clear();
-	  std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-	  throw std::runtime_error ("Invalid input. The fine must be an integer greater than 0");
+	  std::cerr << "Invalid input. The fine must be an integer greater than 0: ";
 	}
       }
     } else {
@@ -279,7 +302,7 @@ namespace MyNamespace {
     }
     const auto& borrowedBooks = (*memberit)->getBooksBorrowed();
     if (borrowedBooks.size() == 0) {
-      throw std::runtime_error ("Member with ID " + std::to_string(memberID) + " has no books borrowed.");
+      std::cerr << "Member with ID " + std::to_string(memberID) + " has no books borrowed."<<std::endl;
     }else {
       int counter = 0;
       std::cout << "[";

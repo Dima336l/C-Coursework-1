@@ -4,13 +4,6 @@
 
 namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
-    welcomeMessage();
-    Date::currentDate = new Date(1,12,200);
-    //Date::setInitialDate();
-    Member* member1 = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-    Member* member2 = new Member(2,"Andrei","Colindale","AndreiNirca@mail.ru");
-    members.push_back(member1);
-    members.push_back(member2);
     librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   }
   std::vector<std::vector<std::string>> Library::readFile() {
@@ -51,8 +44,8 @@ namespace MyNamespace {
   
   void Library::welcomeMessage() {
     std::cout << std::endl;
-    std::cout << "Welcome to the library" << std::endl << std::endl;
-    std::cout <<"Please enter today's date" << std::endl;
+    std::cout << "Welcome to the library" << std::endl;
+    std::cout <<"Please enter today's date" << std::endl << std::endl;
   }
 
   void Library::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
@@ -106,9 +99,8 @@ namespace MyNamespace {
     std::cout << "4. Issue a book" << std::endl;
     std::cout << "5. Return a book" << std::endl;
     std::cout << "6. Display books borrowed" << std::endl;
-    std::cout << "7. Calculate fine" << std::endl;
-    std::cout << "8. Change date" << std::endl;
-    std::cout << "9. Exit" << std::endl << std::endl;
+    std::cout << "7. Change date" << std::endl;
+    std::cout << "8. Exit" << std::endl << std::endl;
   }
 
   int Library::getUserChoice() {
@@ -117,16 +109,18 @@ namespace MyNamespace {
     while (true) {
       std::getline(std::cin,input);
       if (input.empty()) {
-	std::cerr << "Input cannot be empty. Please enter a number." << std::endl;
+	std::cerr << "Input cannot be empty. Please enter a number: ";
 	continue;
       }
       try {
 	choice = std::stoi(input);
+	if (choice < 0 ) {
+	  std::cerr<< "Input has to be a positive integer: ";
+	  continue;
+	}
 	break;
       } catch(const std::invalid_argument &) {
-	std::cerr << "\nInvalid input. Please enter a valid integer for your choice." << std::endl;
-	displayOptions();
-	std::cout << "Enter your choice: ";
+	std::cerr << "Invalid input. Please enter a valid integer for your choice: ";
       }
     }
 
@@ -160,6 +154,11 @@ namespace MyNamespace {
   void Library::addMember() {
     librarian->addMember();
   }
+
+  void Library::changeDate() {
+    std::cout << "Please enter the new date: " << std::endl;
+    Date::setInitialDate();
+  }
   
 
   void Library::handleMenu(std::vector<std::vector<std::string>> cSVRows) {
@@ -186,33 +185,34 @@ namespace MyNamespace {
         handleReturn();
 	break;
       case 6:
-	std::cout << "You entered Option 6." << std::endl;
+        displayBorrowedBooks();
 	break;
       case 7:
-	std::cout << "You entered Option 7." << std::endl;
+        changeDate();
 	break;
       case 8:
-	std::cout << "You entered Option 8." << std::endl;
-	break;
-      case 9:
 	std::cout << "Goodbye." << std::endl;
 	break;
       default:
-	std::cout <<"Invalid choice, please enter a number between 1 and 7." << std::endl;
+	std::cout <<"Invalid choice, please enter a number between 1 and 8." << std::endl;
 	break;
       }
-    } while (choice != 9);
+    } while (choice != 8);
   }
 
-    
+  void Library::displayBorrowedBooks() {
+    std::cout << "Enter member ID: ";
+    int memberID = getUserChoice();
+    std::cout << std::endl;
+    librarian->displayBorrowedBooks(memberID);
+  }
 
 
   void Library::handleLibrary() {
+    welcomeMessage();
+    Date::setInitialDate();
     std::vector<std::vector<std::string>> cSVRows = readFile();
     addBooks(cSVRows);
-    handleMenu(cSVRows);
-    
- 
+    handleMenu(cSVRows);  
   }
-  
 }

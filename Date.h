@@ -35,7 +35,7 @@ class Date {
   void setMonth(int m);
   void setYear(int y);
   void displayDate() const;
-  bool handleInput(int& component, const std::string& prompt, const std::string& errorMessage);
+  bool handleInput(int& component, const std::string& errorMessage);
 };
 }
 #endif
