@@ -38,30 +38,47 @@ namespace MyNamespace {
   int Book::determineNumOfDays() {
     char option;
     bool isChoiceNotValid;
-    std::cout << "Would you like to use the default due date which is 3 days from today or choose another date?" << std::endl;
+    int numOfDays;
+    std::cout<< std::endl << "Would you like to use the default due date which is 3 days from today or choose another date?" << std::endl;
     do {
       std::cout << "Enter 'Y' for custom date and 'N' for default: ";
       std::cin.get(option);
       isChoiceNotValid = (std::toupper(option) != 'Y' && std::toupper(option) != 'N');
       if (isChoiceNotValid) {
-        throw std::runtime_error("Invalid input, please enter 'Y' or 'N'");
+	std::cerr << "Invalid input, please enter 'Y' or 'N'" << std::endl;
       }
     } while (isChoiceNotValid);
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     if (std::toupper(option) == 'Y') {
+      std::string input;
 	while (true) {
 	  std::cout << "How many days from today would you like the set the due date to be: ";
-        if (std::cin >> numOfDays && numOfDays > 0){
+	  std::getline(std::cin,input);
+	  if (input.empty()) {
+	    std::cerr << "Input cannot be empty. Please enter a number." << std::endl;
+	    continue;
+	  }
+
+	  try {
+	    numOfDays = std::stoi(input);
+	  } catch (const std::invalid_argument &) {
+	    std::cerr << "Invalid input.Please enter an integer." << std::endl;
+	    continue;
+	  }
+	  
+        if (numOfDays > 0){
 	  break;
 	} else {
-	  std::cin.clear();
-	  std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
-	  throw std::runtime_error ("Invalid input. The number of days must be an integer greater than 0");
+	  //std::cin.clear();
+	  // std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+	  std::cerr << "Invalid input. The number of days must be an integer greater than 0" << std::endl;;
 	}
 	}
       } else {
 	numOfDays = 3;
       }
-      return numOfDays;
+    return numOfDays;
     }
   
   
@@ -83,8 +100,6 @@ namespace MyNamespace {
      delete dueDate;
      dueDate = nullptr;
      dueDateNotSet = true;
-     delete borrower;
-     borrower = nullptr;
     }
   }
   

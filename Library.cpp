@@ -5,7 +5,12 @@
 namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
     welcomeMessage();
-    Date::setInitialDate();
+    Date::currentDate = new Date(1,12,200);
+    //Date::setInitialDate();
+    Member* member1 = new Member(1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+    Member* member2 = new Member(2,"Andrei","Colindale","AndreiNirca@mail.ru");
+    members.push_back(member1);
+    members.push_back(member2);
     librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   }
   std::vector<std::vector<std::string>> Library::readFile() {
@@ -119,7 +124,9 @@ namespace MyNamespace {
 	choice = std::stoi(input);
 	break;
       } catch(const std::invalid_argument &) {
-	std::cerr << "Invalid input. Please enter a valid integer for your choice." << std::endl;
+	std::cerr << "\nInvalid input. Please enter a valid integer for your choice." << std::endl;
+	displayOptions();
+	std::cout << "Enter your choice: ";
       }
     }
 
@@ -134,7 +141,7 @@ namespace MyNamespace {
     try {
       librarian->issueBook(memberID,bookID);
     } catch(const std::runtime_error& e) {
-      std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+      std::cerr <<  e.what() << std::endl;
     }
   }
   void Library::handleReturn() {
@@ -146,7 +153,7 @@ namespace MyNamespace {
     try {
       librarian->returnBook(memberID,bookID);
     } catch(const std::runtime_error& e) {
-      std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+      std::cerr << e.what() << std::endl;
     }
   }
 

@@ -120,7 +120,7 @@ namespace MyNamespace {
 	break;
       }
       catch (const std::runtime_error& e) {
-	std::cerr << "Caught runtime_error: " << e.what() << std::endl;
+	std::cerr << e.what() << std::endl;
       }
     }
   }
@@ -151,7 +151,7 @@ namespace MyNamespace {
 
   bool Librarian::handleMemberIt(std::vector<Member*>::iterator memberit,int memberID) {
     if (memberit == members.end()) {
-      throw std::runtime_error("Member with ID " +  std::to_string(memberID) +  " was not found.");
+      throw std::runtime_error("\nMember with ID " +  std::to_string(memberID) +  " was not found.");
       return true;
     }
     return false;
@@ -159,7 +159,7 @@ namespace MyNamespace {
 
   bool Librarian::handleBookIt(std::vector<Book*>::iterator bookit,int bookID) {
     if (bookit == books.end()) {
-      throw std::runtime_error ("Book with ID " + std::to_string(bookID) + " was not found.");
+      throw std::runtime_error ("\nBook with ID " + std::to_string(bookID) + " was not found.");
       return true;
     }
     return false;
@@ -175,7 +175,7 @@ namespace MyNamespace {
     if (((*bookit)->checkIfDateSet())) {
       Librarian::handleBookIssue(memberit,bookit,memberID,bookID);
     }else {
-      throw std::runtime_error("Book with name " + (*bookit)->getBookName() + " is already borrowed my another member.");
+      throw std::runtime_error("Book with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
     }
   }
   
@@ -199,10 +199,13 @@ namespace MyNamespace {
       }
     }
     if (bookFound) {
+      Librarian::calcFine(memberID);
       Librarian::handleBookReturn(memberit,bookit,memberID,bookID);
     } else {
-      throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID));
-    }  
+      throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID) +".");
+    }
+    std::cin.clear();
+    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
   }
 
   
@@ -214,10 +217,10 @@ namespace MyNamespace {
     if (daysPassed != 0) {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
-	std::cout <<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
+	std::cout <<std::endl<<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
 	std::cout << "The amount you owe to the library is " << daysPassed*finePerDay << "£." << std::endl;
       } else if (dateComparasion == 1) {
-	std::cout << '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << "." << std::endl;
+	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ". Nothing is owed to the library." << std::endl;
       }   
     } else {
       std::cout << "The book is due today." << std::endl;
@@ -229,13 +232,13 @@ namespace MyNamespace {
     bool isChoiceNotValid;
     std::cout << "Would you like to use the default fine of 1£ or would you like to set up a custom amount?" << std::endl;
     do {
-      std::cout << "Enter Y for custom amount and N for default: ";
+      std::cout << "Enter 'Y' for custom amount and 'N' for default: ";
       std::cin.get(option);
       isChoiceNotValid = (std::toupper(option) != 'Y' && std::toupper(option) != 'N');
       if (isChoiceNotValid) {
         throw std::runtime_error("Invalid input, please enter 'Y' or 'N'");
       }
-    } while (isChoiceNotValid);
+    } while (!isChoiceNotValid);
     if (std::toupper(option) == 'Y') {
       while (true) {
 	std::cout << "Please set the fine rate: ";
@@ -259,18 +262,16 @@ namespace MyNamespace {
       return;
     }
     const auto& borrowedBooks = (*memberit)->getBooksBorrowed();
-    if (borrowedBooks.size() == 0) {
-      std::cout << "This member has no books borrowed." << std::endl;
-    }else {
-      if (!fineSet) {
-	finePerDay = Librarian::determineFine();
-	fineSet = true;
-      }
-      for (const auto& book: borrowedBooks) {
-	Librarian::calcFineForOneBook(book,finePerDay);
-      }
+    if (!fineSet) {
+      finePerDay = Librarian::determineFine();
+      fineSet = true;
+    }
+  
+    for (const auto& book: borrowedBooks) {
+      Librarian::calcFineForOneBook(book,finePerDay);
     }
   }
+  
   void Librarian::displayBorrowedBooks(int memberID) {
     auto memberit = Librarian::findMemberByID(memberID);
     if (Librarian::handleMemberIt(memberit,memberID)) {

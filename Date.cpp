@@ -100,7 +100,7 @@ namespace MyNamespace {
 	  currentDate->setDay(d);
 	  daySet = true;
 	} catch (const std::invalid_argument& e) {
-	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
       }
     }
@@ -111,7 +111,7 @@ namespace MyNamespace {
 	  currentDate->setMonth(m);
 	  monthSet = true;
 	} catch (const std::invalid_argument& e) {
-	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
       }
     }
@@ -122,7 +122,7 @@ namespace MyNamespace {
 	  currentDate->setYear(y);
 	  yearSet = true;
 	} catch (const std::invalid_argument& e) {
-	  std::cerr << "Invalid argument: " << e.what() << std::endl;
+	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
       }
     }
