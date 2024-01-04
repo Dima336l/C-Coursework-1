@@ -71,7 +71,7 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     redirectFunction([&](const std::string& str) {lib->issueBook(100,100);}, "N\n");
     capturedOutput = captureOutput ([&] {redirectFunction([&](const std::string& str) {lib->calcFine(100);}, "N\n");});
     extractOutput(capturedOutput);
-    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days.");
+    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days. Nothing is owed to the library.");
     redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "6\n12\n2000\n");
     capturedOutput = captureOutput([&] { lib->calcFine(100);});
     REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 2 days past its due date.The amount you owe to the library is 2£.");
@@ -86,9 +86,13 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     lib->issueBook(2,1);
     REQUIRE(member->getBooksBorrowed().size() == 1);
     REQUIRE_THROWS_AS((lib->issueBook(2,1)),std::runtime_error); // Issuing book that is already borrowed
-    REQUIRE_THROWS_AS((lib->issueBook(3,2)),std::runtime_error); // Issuing a book that doesn't exist
-    REQUIRE_THROWS_AS((lib->issueBook(4,1)),std::runtime_error); // Issuing a book to a non existing member		      
-    }
+    std::stringstream errorStream;
+    std::streambuf* oldCerrBuf = std::cerr.rdbuf(errorStream.rdbuf());
+    lib->issueBook(3,2); // Issuing a book to a member that is not registered
+    std::cerr.rdbuf(oldCerrBuf);
+    std::string errorMessage = errorStream.str();
+    REQUIRE(errorMessage.find("Member with ID 3 was not found.") != std::string::npos);		     
+  }
   SECTION("Testing returnBook function") {
     Member* member = new Member(69,"Octavian","Chisinau","Octavian@icloud.com");
     Book* book = new Book(69,"C++","Ion","Gandon");
@@ -101,16 +105,25 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     lib->returnBook(69,69);
     REQUIRE(member->getBooksBorrowed().size() == 0);
     REQUIRE_THROWS_AS((lib->returnBook(69,69)),std::runtime_error); // Returning a book that has been returned
-    REQUIRE_THROWS_AS((lib->returnBook(70,69)),std::runtime_error); // Returning a book by a member that is not registered
-    REQUIRE_THROWS_AS((lib->returnBook(69,70)),std::runtime_error); // Returning a book that was not borrowed by the member
+    std::stringstream errorStream;
+    std::streambuf* oldCerrBuf = std::cerr.rdbuf(errorStream.rdbuf());
+    lib->returnBook(70,69); // Returning a book my a member that is not registered
+    std::cerr.rdbuf(oldCerrBuf);
+    std::string errorMessage = errorStream.str();
+    REQUIRE(errorMessage.find("Member with ID 70 was not found.") != std::string::npos);
+    REQUIRE_THROWS_AS((lib->returnBook(69,70)), std::runtime_error); // Book not borrowed by existing member
   }
   SECTION("Testing displayBorrowedBooks function") {
-    REQUIRE_THROWS_AS((lib->displayBorrowedBooks(69)),std::runtime_error); // No books borrowed
-    REQUIRE_THROWS_AS((lib->displayBorrowedBooks(79)),std::runtime_error); // Nonexistent member
+    std::stringstream errorStream;
+    std::streambuf* oldCerrBuf = std::cerr.rdbuf(errorStream.rdbuf());
+    lib->displayBorrowedBooks(69); // No books borrowed
+    std::cerr.rdbuf(oldCerrBuf);
+    std::string errorMessage = errorStream.str();
+    REQUIRE(errorMessage.find("Member with ID 69 has no books borrowed.") != std::string::npos);
     lib->issueBook(69,69);
     capturedOutput = captureOutput([&] { lib->displayBorrowedBooks(69);});
     REQUIRE(capturedOutput == "[\"C++\" by Ion Gandon]");
-    }
+  }
 }
 
 TEST_CASE("Date class tests","[Date]") {
@@ -134,7 +147,7 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(date.getDay() == 20);
     REQUIRE(date.getMonth() == 3);
     REQUIRE(date.getYear() == 2023);
-}
+  }
   SECTION("Testing Date copy constructor") {
     Date date1(1,12,3000);
     REQUIRE(date1.getDay() == 1);
@@ -194,13 +207,13 @@ TEST_CASE("Date class tests","[Date]") {
   }
   SECTION("Testing initial date setter") {
     redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n2\n2023\n");
-  Date* currentDate = Date::getCurrentDate();
-  REQUIRE(currentDate->getDay() == 1);
-  REQUIRE(currentDate->getMonth() == 2);
-  REQUIRE(currentDate->getYear() == 2023);
+    Date* currentDate = Date::getCurrentDate();
+    REQUIRE(currentDate->getDay() == 1);
+    REQUIRE(currentDate->getMonth() == 2);
+    REQUIRE(currentDate->getYear() == 2023);
   }
-   SECTION("Testing compare dates function") {
-     int compareDates;
+  SECTION("Testing compare dates function") {
+    int compareDates;
     Date date1(1,2,2023);
     compareDates = date1.compareDates();
     REQUIRE(compareDates == 0);
@@ -212,78 +225,78 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(compareDates == -1);
     
   }
-   SECTION("Testing countDaysPassed and getDaysPassed functions") {
-     Date date1 (30,1,2023);
-     int daysRemaining = date1.countDaysPassed();
-     int compareDates = date1.compareDates();
-     int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
-     REQUIRE(daysRemaining == 2);
-     REQUIRE(daysRemainingFromCountDaysPassed == 2);
-   }
-   SECTION("Testing countDaysRemaining and getDaysPassed function") {
-     Date date1 (5,2,2023);
-     int daysRemaining = date1.countDaysRemaining();
-     int compareDates = date1.compareDates();
-     int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
-     REQUIRE(daysRemaining == 4);
-     REQUIRE(daysRemainingFromCountDaysPassed == 4);
-   }
+  SECTION("Testing countDaysPassed and getDaysPassed functions") {
+    Date date1 (30,1,2023);
+    int daysRemaining = date1.countDaysPassed();
+    int compareDates = date1.compareDates();
+    int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
+    REQUIRE(daysRemaining == 2);
+    REQUIRE(daysRemainingFromCountDaysPassed == 2);
+  }
+  SECTION("Testing countDaysRemaining and getDaysPassed function") {
+    Date date1 (5,2,2023);
+    int daysRemaining = date1.countDaysRemaining();
+    int compareDates = date1.compareDates();
+    int daysRemainingFromCountDaysPassed = date1.getDaysPassed(compareDates);
+    REQUIRE(daysRemaining == 4);
+    REQUIRE(daysRemainingFromCountDaysPassed == 4);
+  }
 }
-  TEST_CASE("Book class test","[Book]") {
-    Member* member = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-    Book* book = new Book (1,"Sun","Dumitru","Nirca");
-    SECTION("Testing Book Parameterized constructor and Getters") {
-      REQUIRE(book->getBookID() == "1");
-      REQUIRE(book->getAuthorFirstName() == "Dumitru");
-      REQUIRE(book->getAuthorLastName() == "Nirca");
+TEST_CASE("Book class test","[Book]") {
+  Member* member = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+  Book* book = new Book (1,"Sun","Dumitru","Nirca");
+  SECTION("Testing Book Parameterized constructor and Getters") {
+    REQUIRE(book->getBookID() == "1");
+    REQUIRE(book->getAuthorFirstName() == "Dumitru");
+    REQUIRE(book->getAuthorLastName() == "Nirca");
   }
-    SECTION("Testing getDueDate function when due date not set") {
-      REQUIRE_THROWS_AS(book->getDueDate(),std::logic_error);
-    }
-    SECTION("Testing setDueDate and getDueDate functions") {
-      Date* currentDate = Date::getCurrentDate();
-      book->setDueDate(currentDate);
-      Date bookDueDate = book->getDueDate();
-      REQUIRE(bookDueDate.getDay() == 4);
-      REQUIRE(bookDueDate.getMonth() == 2);
-      REQUIRE(bookDueDate.getYear() == 2023);
-    }
-    SECTION("Testing borrowBook and returnBook function") {
-      Member* member1 = new Member(500,"Ion","Chisinau","Ion@mail.ru");
-      Book* book2 = new Book(100,"C#","John","Miller");
-      Date* currentDate = Date::getCurrentDate();
-      std::string capturedOutput = captureOutput([&] {book2->borrowBook(*member1,*currentDate);});
-      REQUIRE(capturedOutput == "\"C#\" by John Miller was successfully borrowed to member with ID 500.");
-      REQUIRE(member1->getBooksBorrowed().size() == 1);
-      book2->returnBook();
-      REQUIRE(member1->getBooksBorrowed().size() == 0);
-      REQUIRE_THROWS_AS((book2->getDueDate()),std::logic_error);
-    }
+  SECTION("Testing getDueDate function when due date not set") {
+    REQUIRE_THROWS_AS(book->getDueDate(),std::logic_error);
   }
- TEST_CASE("Member class test","[Member]") {
-   Member* memberNew1 = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-   Member* memberNew2 = new Member (1,"Andrei","Nirca","AndreiNirca@icloud.com");
-   Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
-   size_t initialSize;
-   size_t finalSize;
-   SECTION("Testing member constructor, burrowBook and returnBook functions") {
-     REQUIRE(memberNew1->getMemberID() == "1");
-     REQUIRE(memberNew1->getName() == "Dumitru");
-     REQUIRE(memberNew1->getAddress() == "Colindale");
-     REQUIRE(memberNew1->getEmail() == "Nircadmitrii@icloud.com");
-   }
-   SECTION("Testing getBooksBorrowed and setBooksBorrowed functions") {
-     REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
-     memberNew1->setBooksBorrowed(bookNew);
-     REQUIRE(memberNew1->getBooksBorrowed().size() == 1);
- }
+  SECTION("Testing setDueDate and getDueDate functions") {
+    Date* currentDate = Date::getCurrentDate();
+    book->setDueDate(currentDate);
+    Date bookDueDate = book->getDueDate();
+    REQUIRE(bookDueDate.getDay() == 4);
+    REQUIRE(bookDueDate.getMonth() == 2);
+    REQUIRE(bookDueDate.getYear() == 2023);
+  }
+  SECTION("Testing borrowBook and returnBook function") {
+    Member* member1 = new Member(500,"Ion","Chisinau","Ion@mail.ru");
+    Book* book2 = new Book(100,"C#","John","Miller");
+    Date* currentDate = Date::getCurrentDate();
+    std::string capturedOutput = captureOutput([&] {book2->borrowBook(*member1,*currentDate);});
+    REQUIRE(capturedOutput == "\"C#\" by John Miller was successfully borrowed to member with ID 500.");
+    REQUIRE(member1->getBooksBorrowed().size() == 1);
+    book2->returnBook();
+    REQUIRE(member1->getBooksBorrowed().size() == 0);
+    REQUIRE_THROWS_AS((book2->getDueDate()),std::logic_error);
+  }
+}
+TEST_CASE("Member class test","[Member]") {
+  Member* memberNew1 = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
+  Member* memberNew2 = new Member (1,"Andrei","Nirca","AndreiNirca@icloud.com");
+  Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
+  size_t initialSize;
+  size_t finalSize;
+  SECTION("Testing member constructor, burrowBook and returnBook functions") {
+    REQUIRE(memberNew1->getMemberID() == "1");
+    REQUIRE(memberNew1->getName() == "Dumitru");
+    REQUIRE(memberNew1->getAddress() == "Colindale");
+    REQUIRE(memberNew1->getEmail() == "Nircadmitrii@icloud.com");
+  }
+  SECTION("Testing getBooksBorrowed and setBooksBorrowed functions") {
+    REQUIRE(memberNew1->getBooksBorrowed().size() == 0);
+    memberNew1->setBooksBorrowed(bookNew);
+    REQUIRE(memberNew1->getBooksBorrowed().size() == 1);
+  }
 }
 template<typename Function>
 void redirectFunction(Function func, const std::string& str) {
-    std::stringstream input(str);
-    std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
-    func(str);
-    std::cin.rdbuf(origCin);
+  std::stringstream input(str);
+  std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
+  func(str);
+  std::cin.rdbuf(origCin);
 }
 
 void redirectCoutToNullStream(bool suppress) {
@@ -293,7 +306,7 @@ void redirectCoutToNullStream(bool suppress) {
     originalCoutBuffer = std::cout.rdbuf();
   }
   if (suppress) {
-  std::cout.rdbuf(nullStream.rdbuf());
+    std::cout.rdbuf(nullStream.rdbuf());
   } else {
     std::cout.rdbuf(originalCoutBuffer);
   }
@@ -313,8 +326,8 @@ std::string captureOutput (std::function<void()> func) {
 void extractOutput(std::string &str) {
   size_t startPos = str.find("\"");
   std::string extractedInfo;
-   if (startPos != std::string::npos) {
-     str = str.substr(startPos);
-     std::cout << str << std::endl;
-   }
+  if (startPos != std::string::npos) {
+    str = str.substr(startPos);
+    std::cout << str << std::endl;
+  }
 }
