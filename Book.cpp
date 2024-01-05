@@ -6,7 +6,7 @@ namespace MyNamespace {
     bookID = bID;
     bookName = bName;
     authorFirstName = authFirstN;
-    authLastN = authLastN;
+    authorLastName = authLastN;
     dueDateNotSet = true;
     dueDate = nullptr;
     borrower = nullptr;

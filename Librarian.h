@@ -37,11 +37,12 @@ namespace MyNamespace {
     void issueBook(int memberID, int bookID);
     void returnBook(int memberID, int bookID);
     void displayBorrowedBooks(int memberID);
-    void handleBookIssue(std::vector<Member*>::iterator& memberit,std::vector<Book*>::iterator& bookit,int memberID,int bookID);
-    void handleBookReturn(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit, int memberID, int bookID);
+    void handleBookIssue(std::vector<Member*>::iterator& memberit,std::vector<Book*>::iterator& bookit);
+    void handleBookReturn(std::vector<Book*>::iterator& bookit, int memberID);
     void calcFine(int memberID);
     int getStaffID();
     void setStaffID(int staffID);
+    void displayMemberInfo(int memberID, std::string memberName, std::string memberAddress, std::string memberEmail);
     int getSalary();
     void setSalary(int salary);
 };

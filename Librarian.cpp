@@ -86,6 +86,15 @@ namespace MyNamespace {
     }
     return email;
   }
+  void Librarian::displayMemberInfo(int memberId, std::string memberName, std::string memberAddress, std::string memberEmail) {
+    std::cout << std::endl;
+    std::cout << "The member with the following details was successfully registered." << std::endl;
+    std::cout << "ID: " << memberId << std::endl;
+    std::cout << "Name: " << memberName << std::endl;
+    std::cout << "Address: " << memberAddress <<std::endl;
+    std::cout << "Email: " << memberEmail << std::endl;
+  }
+  
   void Librarian::addMember() {
     std::string memberName,memberAddress,memberEmail;
     bool nameSet = false;
@@ -121,12 +130,7 @@ namespace MyNamespace {
 	  memberEmail = Librarian::getMemberEmail();
 	  emailSet = true;
 	}
-	std::cout << std::endl;
-	std::cout << "The member with the following details was successfully registered." << std::endl;
-	std::cout << "ID: " << memberId << std::endl;
-	std::cout << "Name: " << memberName << std::endl;
-	std::cout << "Address: " << memberAddress <<std::endl;
-	std::cout << "Email: " << memberEmail << std::endl;
+	displayMemberInfo(memberId,memberName,memberAddress,memberEmail);
 	Member* member = new Member(memberId,memberName,memberAddress,memberEmail);
 	members.push_back(member);
 	break;
@@ -154,7 +158,7 @@ namespace MyNamespace {
     return it;
   }
 
-  void Librarian::handleBookIssue(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit,int memberID, int bookID) {
+  void Librarian::handleBookIssue(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit) {
     Date* currentDate = Date::getCurrentDate();
     (*bookit)->setDueDate(currentDate);
     Date bookDueDate = (*bookit)->getDueDate();
@@ -185,14 +189,14 @@ namespace MyNamespace {
       return;
     }
     if (((*bookit)->checkIfDateSet())) {
-      Librarian::handleBookIssue(memberit,bookit,memberID,bookID);
+      Librarian::handleBookIssue(memberit,bookit);
     }else {
       throw std::runtime_error("\nBook with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
     }
   }
   
-  void Librarian::handleBookReturn(std::vector<Member*>::iterator& memberit, std::vector<Book*>::iterator& bookit, int memberID, int bookID) {
-    std::cout <<'"'<<(*bookit)->getBookName() <<'"'<< " by " <<(*bookit)->getAuthorFirstName() << " " << (*bookit)->getAuthorLastName()  << " was successfully returned by member with ID " << memberID <<"."<< std::endl;
+  void Librarian::handleBookReturn(std::vector<Book*>::iterator& bookit, int memberID) {
+    std::cout<<std::endl <<'"'<<(*bookit)->getBookName() <<'"'<< " by " <<(*bookit)->getAuthorFirstName() << " " << (*bookit)->getAuthorLastName()  << " was successfully returned by member with ID " << memberID <<"."<< std::endl;
     (*bookit)->returnBook();
   }
   
@@ -212,7 +216,7 @@ namespace MyNamespace {
     }
     if (bookFound) {
       Librarian::calcFine(memberID);
-      Librarian::handleBookReturn(memberit,bookit,memberID,bookID);
+      Librarian::handleBookReturn(bookit,memberID);
     } else {
       throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID) +".");
     } 
@@ -220,17 +224,15 @@ namespace MyNamespace {
 
   
   void Librarian::calcFineForOneBook(Book* book,int finePerDay) {
-    Date* currentDate = Date::getCurrentDate();
     Date bookDueDate = book->getDueDate();
     int dateComparasion = bookDueDate.compareDates();
     int daysPassed = bookDueDate.getDaysPassed(dateComparasion);
     if (daysPassed != 0) {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
-	std::cout <<std::endl<<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
-	std::cout << "The amount you owe to the library is " << daysPassed*finePerDay << "£." << std::endl;
+	std::cout <<std::endl<<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date.The amount you owe to the library is " << daysPassed*finePerDay << "£.";
       } else if (dateComparasion == 1) {
-	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ". Nothing is owed to the library." << std::endl;
+	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ". Nothing is owed to the library.";
       }   
     } else {
       std::cout << "The book is due today." << std::endl;
@@ -304,7 +306,8 @@ namespace MyNamespace {
     if (borrowedBooks.size() == 0) {
       std::cerr << "Member with ID " + std::to_string(memberID) + " has no books borrowed."<<std::endl;
     }else {
-      int counter = 0;
+      std::cout << "Member with ID " + std::to_string(memberID) + " has the following books borrowed:"<<std::endl;
+      size_t counter = 0;
       std::cout << "[";
       for (const auto& book: borrowedBooks) {
 	std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", ";

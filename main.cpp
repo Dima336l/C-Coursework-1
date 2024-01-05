@@ -11,6 +11,5 @@ int main(int argc, char *argv[]) {
   std::string fileName = argv[1];
   Library* library = new Library(fileName);
   library->handleLibrary();
-  delete library;
   return 0;
 }

@@ -15,8 +15,12 @@
 
 namespace MyNamespace {
   class Library {
+  private:
+    Librarian* librarian;
+    std::string fileName;
   public:
     Library(const std::string& fileName);
+    ~Library();
     void handleLibrary();
     void addBooks(std::vector<std::vector<std::string>> fileContent);
     void addBook(std::vector<std::vector<std::string>>, int i);
@@ -32,9 +36,6 @@ namespace MyNamespace {
     void displayBorrowedBooks();
     void changeDate();
     int getUserChoice();
-  private:
-    Librarian* librarian;
-    std::string fileName;
   };
 }
 

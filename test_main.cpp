@@ -21,7 +21,7 @@ public:
   NullStream() : std::ostream(nullptr) {}
 };
 void redirectCoutToNullStream(bool suppress);
-std::string captureOutput (std::function<void()> func);
+std::string captureOutput (std::function<void()> functionToCapture);
 void extractOutput(std::string &str);
 
 TEST_CASE("Person class tests", "[PERSON]") {
@@ -59,7 +59,7 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
   }
   SECTION("Testing addMember function") {
     REQUIRE(members.size() == 0);
-    redirectFunction([&](const std::string& str) {lib->addMember(); }, "Dumitru\nColindale\nNircadmitrii@icloud.com\n");
+    redirectFunction([&]() {lib->addMember(); }, "Dumitru\nColindale\nNircadmitrii@icloud.com\n");
     REQUIRE(members.size() == 1);
   }
   SECTION("Testing calcFine function") {
@@ -67,12 +67,12 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     Member* newMember = new Member(100,"Robert","Edgware","Edgware@icloud.com");
     members.push_back(newMember);
     books.push_back(newBook);
-    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n12\n2000\n");
-    redirectFunction([&](const std::string& str) {lib->issueBook(100,100);}, "N\n");
-    capturedOutput = captureOutput ([&] {redirectFunction([&](const std::string& str) {lib->calcFine(100);}, "N\n");});
+    redirectFunction([&]() {Date::setInitialDate(); }, "1\n12\n2000\n");
+    redirectFunction([&]() {lib->issueBook(100,100);}, "N\n");
+    capturedOutput = captureOutput ([&] {redirectFunction([&]{lib->calcFine(100);}, "N\n");});
     extractOutput(capturedOutput);
     REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days. Nothing is owed to the library.");
-    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "6\n12\n2000\n");
+    redirectFunction([&]() {Date::setInitialDate(); }, "6\n12\n2000\n");
     capturedOutput = captureOutput([&] { lib->calcFine(100);});
     REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 2 days past its due date.The amount you owe to the library is 2£.");
   }
@@ -122,7 +122,7 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     REQUIRE(errorMessage.find("Member with ID 69 has no books borrowed.") != std::string::npos);
     lib->issueBook(69,69);
     capturedOutput = captureOutput([&] { lib->displayBorrowedBooks(69);});
-    REQUIRE(capturedOutput == "[\"C++\" by Ion Gandon]");
+    REQUIRE(capturedOutput == "Member with ID 69 has the following books borrowed:[\"C++\" by Ion Gandon]");
   }
 }
 
@@ -206,7 +206,7 @@ TEST_CASE("Date class tests","[Date]") {
     REQUIRE(newDate.getYear() == 2002);
   }
   SECTION("Testing initial date setter") {
-    redirectFunction([&](const std::string& str) {Date::setInitialDate(); }, "1\n2\n2023\n");
+    redirectFunction([&]() {Date::setInitialDate(); }, "1\n2\n2023\n");
     Date* currentDate = Date::getCurrentDate();
     REQUIRE(currentDate->getDay() == 1);
     REQUIRE(currentDate->getMonth() == 2);
@@ -243,7 +243,6 @@ TEST_CASE("Date class tests","[Date]") {
   }
 }
 TEST_CASE("Book class test","[Book]") {
-  Member* member = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
   Book* book = new Book (1,"Sun","Dumitru","Nirca");
   SECTION("Testing Book Parameterized constructor and Getters") {
     REQUIRE(book->getBookID() == "1");
@@ -275,10 +274,7 @@ TEST_CASE("Book class test","[Book]") {
 }
 TEST_CASE("Member class test","[Member]") {
   Member* memberNew1 = new Member (1,"Dumitru","Colindale","Nircadmitrii@icloud.com");
-  Member* memberNew2 = new Member (1,"Andrei","Nirca","AndreiNirca@icloud.com");
   Book* bookNew  = new Book(1,"Moon","Dumitru","Nirca");
-  size_t initialSize;
-  size_t finalSize;
   SECTION("Testing member constructor, burrowBook and returnBook functions") {
     REQUIRE(memberNew1->getMemberID() == "1");
     REQUIRE(memberNew1->getName() == "Dumitru");
@@ -295,7 +291,7 @@ template<typename Function>
 void redirectFunction(Function func, const std::string& str) {
   std::stringstream input(str);
   std::streambuf* origCin = std::cin.rdbuf(input.rdbuf());
-  func(str);
+  func();
   std::cin.rdbuf(origCin);
 }
 
@@ -312,11 +308,11 @@ void redirectCoutToNullStream(bool suppress) {
   }
 }
 
-std::string captureOutput (std::function<void()> func) {
+std::string captureOutput (std::function<void()> functionToCapture) {
   std::stringstream outputCapture;
   std::streambuf* originalCoutBuffer = std::cout.rdbuf(); // Save original cout buffer
   std::cout.rdbuf(outputCapture.rdbuf());
-  func();
+  functionToCapture();
   std::cout.rdbuf(originalCoutBuffer);
   std::string capturedOutput = outputCapture.str();
   capturedOutput.erase(std::remove(capturedOutput.begin(), capturedOutput.end(), '\n'), capturedOutput.end());

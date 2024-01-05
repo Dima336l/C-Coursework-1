@@ -28,8 +28,8 @@ namespace MyNamespace {
   int Date::getYear() const {
     return year;
   }
-  void Date::displayDate() const {
-    std::cout << day << "/" << month << "/" << year << std::endl;
+  std::string Date::displayDate() const {
+    return "(" + std::to_string(day) + "/" + std::to_string(month) + "/" + std::to_string(year) + ")";
   }
   void Date::setDay(int d) {
     if (!isValidDate(d,month,year)) {

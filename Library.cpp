@@ -1,11 +1,25 @@
 #include "Library.h"
 
 
-
 namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
+    Date::currentDate = new Date (12,01,2024);
     librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
   }
+  Library::~Library() {
+    for (auto& book: books) {
+      delete book;
+    }
+    books.clear();
+    for (auto& member: members) {
+      delete member;
+    }
+    members.clear();
+    delete librarian;
+    delete Date::currentDate;
+    std::cout << "Library destructor called" << std::endl;
+  }
+  
   std::vector<std::vector<std::string>> Library::readFile() {
     std::ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
@@ -45,7 +59,6 @@ namespace MyNamespace {
   void Library::welcomeMessage() {
     std::cout << std::endl;
     std::cout << "Welcome to the library" << std::endl;
-    std::cout <<"Please enter today's date" << std::endl << std::endl;
   }
 
   void Library::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
@@ -59,7 +72,7 @@ namespace MyNamespace {
 
   void Library::displayBooks(std::vector<std::vector<std::string>> cSVRows) {
     std::vector<int> columnWidths = {10,50,13,20,19};
-    for (int i = 0; i < cSVRows.size();i++) {
+    for (size_t i = 0; i < cSVRows.size();i++) {
       for (size_t j = 0; j < cSVRows[i].size(); ++j) {
 	std::cout << std::setw(columnWidths[j]) << std::left << cSVRows[i][j];
       }
@@ -86,13 +99,14 @@ namespace MyNamespace {
   }
   
   void Library::addBooks(std::vector<std::vector<std::string>> cSVRows) {
-    for (int i = 1; i < cSVRows.size();i++) {
+    for (size_t i = 1; i < cSVRows.size();i++) {
       addBook(cSVRows,i);
     }
   }
 
   void Library::displayOptions() {
     std::cout << std::endl;
+    std::cout <<"\t\t\t\t" << Date::currentDate->displayDate() << std::endl;
     std::cout << "1. Display books" << std::endl;
     std::cout << "2. Display members" << std::endl;
     std::cout << "3. Add a member" << std::endl;
@@ -205,14 +219,14 @@ namespace MyNamespace {
     int memberID = getUserChoice();
     std::cout << std::endl;
     librarian->displayBorrowedBooks(memberID);
+    
   }
 
 
   void Library::handleLibrary() {
     welcomeMessage();
-    Date::setInitialDate();
     std::vector<std::vector<std::string>> cSVRows = readFile();
     addBooks(cSVRows);
-    handleMenu(cSVRows);  
+    handleMenu(cSVRows);
   }
 }
