@@ -23,6 +23,7 @@ class Date {
   static Date* currentDate;
   Date(int d, int m, int y);
   Date(const Date& other);
+  Date& operator=(const Date& other) = default;
   Date addDays(int d);
   static void setInitialDate();
   static Date* getCurrentDate();

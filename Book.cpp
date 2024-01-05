@@ -2,7 +2,14 @@
 #include "Global.h"
 
 namespace MyNamespace {
-  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) : bookID(bID),bookName(bName),authorFirstName(authFirstN),authorLastName(authLastN),dueDateNotSet(true),dueDate(nullptr),borrower(nullptr) {
+  Book::Book(int bID, std::string bName, std::string authFirstN,std::string authLastN) {
+    bookID = bID;
+    bookName = bName;
+    authorFirstName = authFirstN;
+    authLastN = authLastN;
+    dueDateNotSet = true;
+    dueDate = nullptr;
+    borrower = nullptr;
   }
   Book::~Book() {
     delete borrower;
