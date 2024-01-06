@@ -1,6 +1,6 @@
 # C++ Library Management System
 
-This C++ project is a simple yet effective Library Management System. It allows users to manage books, members, and book transactions within a library.
+This C++ project represents an efficient library management system, providing users with a simple interface to manage books, members and transactions​
 
 ## Key Features
 - Book and member management
