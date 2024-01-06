@@ -5,6 +5,7 @@ namespace MyNamespace {
   Library::Library(const std::string& fileName) : fileName(fileName) {
     Date::currentDate = new Date (12,01,2024);
     librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
+    initializeObjectMap();
   }
   Library::~Library() {
     for (auto& book: books) {
@@ -18,6 +19,12 @@ namespace MyNamespace {
     delete librarian;
     delete Date::currentDate;
     std::cout << "Library destructor called" << std::endl;
+  }
+
+  void Library::initializeObjectMap() {
+    for (const auto& member: members) {
+      objectMap[member] = false;   
+    }
   }
   
   std::vector<std::vector<std::string>> Library::readFile() {

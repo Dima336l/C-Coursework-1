@@ -23,7 +23,7 @@ namespace MyNamespace {
     bool isValidEmail(const std::string & email);
     std::vector<Member*>::iterator findMemberByID(int memberID);
     std::vector<Book*>::iterator findBookByID(int bookID);
-    void calcFineForOneBook(Book* book, int finePerDay);
+    int calcFineForOneBook(Book* book,std::vector<Member*>::iterator memberit, int finePerDay);
     std::string getMemberName();
     std::string getMemberAddress();
     std::string getMemberEmail();
@@ -40,6 +40,7 @@ namespace MyNamespace {
     void handleBookIssue(std::vector<Member*>::iterator& memberit,std::vector<Book*>::iterator& bookit);
     void handleBookReturn(std::vector<Book*>::iterator& bookit, int memberID);
     void calcFine(int memberID);
+    void printFine(int fine);
     int getStaffID();
     void setStaffID(int staffID);
     void displayMemberInfo(int memberID, std::string memberName, std::string memberAddress, std::string memberEmail);

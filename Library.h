@@ -35,6 +35,7 @@ namespace MyNamespace {
     void handleReturn();
     void displayBorrowedBooks();
     void changeDate();
+    void initializeObjectMap();
     int getUserChoice();
   };
 }

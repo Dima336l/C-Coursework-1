@@ -190,13 +190,14 @@ namespace MyNamespace {
     }
     if (((*bookit)->checkIfDateSet())) {
       Librarian::handleBookIssue(memberit,bookit);
+      objectMap[*memberit] = false;
     }else {
       throw std::runtime_error("\nBook with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
     }
   }
   
   void Librarian::handleBookReturn(std::vector<Book*>::iterator& bookit, int memberID) {
-    std::cout<<std::endl <<'"'<<(*bookit)->getBookName() <<'"'<< " by " <<(*bookit)->getAuthorFirstName() << " " << (*bookit)->getAuthorLastName()  << " was successfully returned by member with ID " << memberID <<"."<< std::endl;
+    std::cout <<'"'<<(*bookit)->getBookName() <<'"'<< " by " <<(*bookit)->getAuthorFirstName() << " " << (*bookit)->getAuthorLastName()  << " was successfully returned by member with ID " << memberID <<"."<< std::endl;
     (*bookit)->returnBook();
   }
   
@@ -215,28 +216,41 @@ namespace MyNamespace {
       }
     }
     if (bookFound) {
-      Librarian::calcFine(memberID);
+      calcFine(memberID);
       Librarian::handleBookReturn(bookit,memberID);
+      objectMap[*memberit] = true;
     } else {
       throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID) +".");
     } 
   }
 
+  void Librarian::printFine(int fine) {
+    if (fine == 0) {
+      std::cout <<std::endl << "Nothing is owed to the library." << std::endl;
+    } else {
+      std::cout <<"The amount you owe to the library is " << fine << "£." << std::endl;
+    }
+  }
   
-  void Librarian::calcFineForOneBook(Book* book,int finePerDay) {
+  int Librarian::calcFineForOneBook(Book* book,std::vector<Member*>::iterator memberit, int finePerDay) {
     Date bookDueDate = book->getDueDate();
     int dateComparasion = bookDueDate.compareDates();
     int daysPassed = bookDueDate.getDaysPassed(dateComparasion);
+    int fine = 0;
+    if (objectMap[*memberit] == 0) {
     if (daysPassed != 0) {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
-	std::cout <<std::endl<<'"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date.The amount you owe to the library is " << daysPassed*finePerDay << "£.";
+        fine = daysPassed * finePerDay;
+	std::cout << '"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
       } else if (dateComparasion == 1) {
-	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ". Nothing is owed to the library.";
+	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ".";
       }   
     } else {
       std::cout << "The book is due today." << std::endl;
     }
+    }
+    return fine;
   }
 
   int Librarian::determineFine() {
@@ -282,6 +296,7 @@ namespace MyNamespace {
   }
   
   void Librarian::calcFine(int memberID){
+    int fine = 0;
     auto memberit = Librarian::findMemberByID(memberID);
     if (Librarian::handleMemberIt(memberit,memberID)) {
       return;
@@ -293,7 +308,10 @@ namespace MyNamespace {
     }
   
     for (const auto& book: borrowedBooks) {
-      Librarian::calcFineForOneBook(book,finePerDay);
+      fine += Librarian::calcFineForOneBook(book,memberit,finePerDay);
+    }
+    if (objectMap[*memberit] == 0) {
+      printFine(fine);
     }
   }
   
