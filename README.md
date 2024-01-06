@@ -14,7 +14,7 @@ This C++ project is a simple yet effective Library Management System. It allows 
     git clone https://github.com/Dima336l/C-Coursework-1.git
 ### Navigate to Directory: 
     cd C-Coursework-1
-### Compile 
+### Compile: 
     make
 
 ## Usage
