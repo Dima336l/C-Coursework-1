@@ -33,7 +33,5 @@ Library.o: Library.cpp Library.h
 
 clean:
 	$(RM) *.o
-	$(RM) program
-	$(RM) test
 
 

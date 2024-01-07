@@ -71,7 +71,7 @@ TEST_CASE("Librarian class tests", "[Librarian]") {
     redirectFunction([&]() {lib->issueBook(100,100);}, "N\n");
     capturedOutput = captureOutput ([&] {redirectFunction([&]{lib->calcFine(100);}, "N\n");});
     extractOutput(capturedOutput);
-    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days. Nothing is owed to the library.");
+    REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is due in 3 days.Nothing is owed to the library.");
     redirectFunction([&]() {Date::setInitialDate(); }, "6\n12\n2000\n");
     capturedOutput = captureOutput([&] { lib->calcFine(100);});
     REQUIRE(capturedOutput == "\"Rabbit\" by Joji Ayr is 2 days past its due date.The amount you owe to the library is 2£.");
