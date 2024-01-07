@@ -188,7 +188,9 @@ namespace MyNamespace {
       displayOptions();
       std::cout << "Enter your choice: ";
       choice = getUserChoice();
-      std::cout << std::endl;
+      if (choice >= 1 && choice <= 8) {
+	std::cout << std::endl;
+      }
       switch(choice) {
       case 1:
 	displayBooks(cSVRows);

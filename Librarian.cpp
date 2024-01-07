@@ -242,7 +242,7 @@ namespace MyNamespace {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
         fine = daysPassed * finePerDay;
-	std::cout << '"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
+	std::cout <<std::endl<< '"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
       } else if (dateComparasion == 1) {
 	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ".";
       }   
