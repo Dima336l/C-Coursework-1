@@ -5,6 +5,7 @@ This C++ project represents an efficient library management system, providing us
 ## Key Features
 - Book and member management
 - Book issuing and returning
+- Custom fines and due dates
 - Simple command-line interface
 - Easy integration with custom CSV files
 
