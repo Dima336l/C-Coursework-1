@@ -7,6 +7,7 @@
 #include "Book.h"
 #include "Librarian.h"
 #include "Global.h"
-#include "Library.h"
+#include "Menu.h"
+#include "Logic.h"
 
 #endif

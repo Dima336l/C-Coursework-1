@@ -226,7 +226,7 @@ namespace MyNamespace {
 
   void Librarian::printFine(int fine) {
     if (fine == 0) {
-      std::cout <<std::endl << "Nothing is owed to the library." << std::endl;
+      std::cout << "Nothing is owed to the library." << std::endl;
     } else {
       std::cout <<"The amount you owe to the library is " << fine << "£." << std::endl;
     }
@@ -242,9 +242,9 @@ namespace MyNamespace {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
         fine = daysPassed * finePerDay;
-	std::cout <<std::endl<< '"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
+	std::cout << '"'<< book->getBookName() <<'"' <<" by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is " << daysPassed << " " << dayStr <<" past its due date." << std::endl;
       } else if (dateComparasion == 1) {
-	std::cout <<std::endl<< '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << ".";
+	std::cout << '"' << book->getBookName() << '"' << " by " << book->getAuthorFirstName() << " " << book->getAuthorLastName() << " is due in " << daysPassed << " " << dayStr << "." << std::endl;
       }   
     } else {
       std::cout << "The book is due today." << std::endl;
@@ -292,6 +292,7 @@ namespace MyNamespace {
     } else {
       finePerDay = 1;
     }
+    std::cout << std::endl;
     return finePerDay;
   }
   

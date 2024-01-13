@@ -4,8 +4,8 @@ CXXFLAGS = -g -Wall -Wextra -Wpedantic
 .PHONY: all
 all: program test clean
 
-program: Main.cpp Date.o Book.o Person.o Member.o Librarian.o Library.o Global.o
-	$(CXX) $(CXXFLAGS) -o Main Main.cpp Date.o Book.o Person.o Member.o Librarian.o Library.o Global.o
+program: Main.cpp Date.o Book.o Person.o Member.o Librarian.o Menu.o Logic.o Global.o
+	$(CXX) $(CXXFLAGS) -o Main Main.cpp Date.o Book.o Person.o Member.o Librarian.o Menu.o Logic.o Global.o
 
 test: Test_main.cpp Date.o Book.o Person.o Member.o Librarian.o Global.o
 	$(CXX) $(CXXFLAGS) -o Test_main Test_main.cpp Date.o Book.o Person.o Member.o Librarian.o Global.o
@@ -28,8 +28,11 @@ Member.o: Member.cpp Member.h
 Librarian.o: Librarian.cpp Librarian.h
 	$(CXX) $(CXXFLAGS) -c Librarian.cpp
 
-Library.o: Library.cpp Library.h
-	$(CXX) $(CXXFLAGS) -c Library.cpp
+Menu.o: Menu.cpp Menu.h
+	$(CXX) $(CXXFLAGS) -c Menu.cpp
+
+Logic.o: Logic.cpp Logic.h
+	$(CXX) $(CXXFLAGS) -c Logic.cpp
 
 clean:
 	$(RM) *.o

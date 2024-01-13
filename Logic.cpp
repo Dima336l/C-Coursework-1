@@ -1,13 +1,15 @@
-#include "Library.h"
+#include "Logic.h"
 
 
 namespace MyNamespace {
-  Library::Library(const std::string& fileName) : fileName(fileName) { // Passing the filename as a parameter in the constructor to handle different CSV files
-    Date::currentDate = new Date (12,01,2024); // Setting up a default currentDate
-    librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000); 
+  class Menu;
+  Logic::Logic(const std::string& fileName, Menu* m) : menu(m), fileName(fileName) {
+    Date::currentDate = new Date(12,01,2024);  // Setting up a default currentDate
+    librarian = new Librarian(1,"Dumitru","Colindale","Nircadmitrii@icloud.com",30000);
     initializeObjectMap(); // Creating an object map for later use for avoidance of repeating fine calculations
   }
-  Library::~Library() {
+
+  Logic::~Logic() {
     for (auto& book: books) {
       delete book;
     }
@@ -20,13 +22,13 @@ namespace MyNamespace {
     delete Date::currentDate;
   }
 
-  void Library::initializeObjectMap() {
+  void Logic::initializeObjectMap() {
     for (const auto& member: members) {
       objectMap[member] = false;  
     }
   }
   
-  std::vector<std::vector<std::string>> Library::readFile() {
+  std::vector<std::vector<std::string>> Logic::readFile() {
     std::ifstream inputFile(fileName);
     if (!inputFile.is_open()) {
       std::cerr << "Error opening the file." << std::endl;
@@ -63,13 +65,8 @@ namespace MyNamespace {
     inputFile.close();
     return cSVRows;
   }
-  
-  void Library::welcomeMessage() {
-    std::cout << std::endl;
-    std::cout << "Welcome to the library" << std::endl;
-  }
 
-  void Library::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
+  void Logic::addBook(std::vector<std::vector<std::string>> cSVRows, int i) {
     /* Extracting the fields */
     int bookID = std::stoi(cSVRows[i][0]);
     std::string bookName = cSVRows[i][1];
@@ -79,54 +76,13 @@ namespace MyNamespace {
     books.push_back(book);
   }
 
-  void Library::displayBooks(std::vector<std::vector<std::string>> cSVRows) {
-    std::vector<int> columnWidths = {10,50,13,20,19}; // Parameters for string formatting
-    for (size_t i = 0; i < cSVRows.size();i++) {
-      for (size_t j = 0; j < cSVRows[i].size(); ++j) {
-	std::cout << std::setw(columnWidths[j]) << std::left << cSVRows[i][j];
-      }
-      std::cout << std::endl; 
-    }
-  }
-
-  void Library::displayMembers() {
-    if (members.size() == 0) {
-      std::cout << "There are no members registered in the system." << std::endl;
-    }
-    else {
-      std::cout << std::setw(5) << std::left << "ID";
-      std::cout << std::setw(15) << std::left << "Name";
-      std::cout << std::setw(15) << std::left << "Address";
-      std::cout << "Email" << std::endl;
-      for (const auto& member: members) {
-	std::cout << std::setw(5) << std::left << member->getMemberID();
-	std::cout << std::setw(15) << std::left << member->getName();
-	std::cout << std::setw(15) << std::left << member->getAddress();
-	std::cout << member->getEmail() << std::endl;
-      }
-    }
-  }
-  
-  void Library::addBooks(std::vector<std::vector<std::string>> cSVRows) {
+  void Logic::addBooks(std::vector<std::vector<std::string>> cSVRows) {
     for (size_t i = 1; i < cSVRows.size();i++) {
       addBook(cSVRows,i);
     }
   }
 
-  void Library::displayOptions() {
-    std::cout << std::endl;
-    std::cout <<"\t\t\t\t" << Date::currentDate->displayDate() << std::endl;
-    std::cout << "1. Display books" << std::endl;
-    std::cout << "2. Display members" << std::endl;
-    std::cout << "3. Add a member" << std::endl;
-    std::cout << "4. Issue a book" << std::endl;
-    std::cout << "5. Return a book" << std::endl;
-    std::cout << "6. Display books borrowed" << std::endl;
-    std::cout << "7. Change date" << std::endl;
-    std::cout << "8. Exit" << std::endl << std::endl;
-  }
-
-  int Library::getUserChoice() {
+  int Logic::getUserChoice() {
     int choice;
     std::string input;
     while (true) {
@@ -150,7 +106,7 @@ namespace MyNamespace {
     return choice;
   }
 
-  void Library::handleBookIssue() {
+  void Logic::handleBookIssue() {
     std::cout << "Enter book ID: ";
     int bookID = getUserChoice();
     std::cout << "Enter member ID: ";
@@ -161,7 +117,7 @@ namespace MyNamespace {
       std::cerr <<  e.what() << std::endl;
     }
   }
-  void Library::handleReturn() {
+  void Logic::handleReturn() {
     std::cout << "Enter book ID: ";
     int bookID = getUserChoice();
     std::cout << "Enter member ID: ";
@@ -174,20 +130,31 @@ namespace MyNamespace {
     }
   }
 
-  void Library::addMember() {
+  void Logic::addMember() {
     librarian->addMember();
   }
 
-  void Library::changeDate() {
+  void Logic::changeDate() {
     std::cout << "Please enter the new date: " << std::endl;
     Date::setInitialDate();
   }
-  
 
-  void Library::handleMenu(std::vector<std::vector<std::string>> cSVRows) {
+  void Logic::displayBooks(std::vector<std::vector<std::string>> cSVRows) {
+    menu->displayBooks(cSVRows);
+  }
+
+  void Logic::displayMembers() {
+    menu->displayMembers();
+  }
+
+  void Logic::displayBorrowedBooks() {
+    menu->displayBorrowedBooks();
+  }
+  
+  void Logic::handleMenu(std::vector<std::vector<std::string>> cSVRows) {
     int choice;
     do {
-      displayOptions();
+      menu->displayOptions();
       std::cout << "Enter your choice: ";
       choice = getUserChoice();
       if (choice >= 1 && choice <= 8) {
@@ -225,19 +192,10 @@ namespace MyNamespace {
     } while (choice != 8);
   }
 
-  void Library::displayBorrowedBooks() {
-    std::cout << "Enter member ID: ";
-    int memberID = getUserChoice();
-    std::cout << std::endl;
-    librarian->displayBorrowedBooks(memberID);
+  void Logic::handleLogic() {
+    std::vector<std::vector<std::string>> fileContents = Logic::readFile();
+    addBooks(fileContents);
+    handleMenu(fileContents);
     
-  }
-
-
-  void Library::handleLibrary() {
-    welcomeMessage();
-    std::vector<std::vector<std::string>> cSVRows = readFile();
-    addBooks(cSVRows);
-    handleMenu(cSVRows);
   }
 }
