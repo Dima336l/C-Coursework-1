@@ -29,12 +29,12 @@ namespace MyNamespace {
     fineSet = false;
   }
   bool Librarian::isValidEmail(const std::string& email) {
-    const std::regex emailRegex(R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})");
+    const std::regex emailRegex(R"([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})"); // Regex for email pattern search
     return std::regex_match(email, emailRegex);
   }
 
   bool Librarian::containsOnlyAlphabet(const std::string& str) {
-    return std::all_of(str.begin(),str.end(),::isalpha);
+    return std::all_of(str.begin(),str.end(),::isalpha); // Checking to see if the string is made up of only letters
   }
 
   std::string Librarian::getMemberName() {
@@ -75,7 +75,7 @@ namespace MyNamespace {
 	throw std::runtime_error ("Email cannot be empty, please enter valid email: ");
       }
       else if (Librarian::isValidEmail(email)) {
-	if (std::find_if(members.begin(),members.end(),[&email](Member* m) { return m->getEmail() == email; }) == members.end())  {
+	if (std::find_if(members.begin(),members.end(),[&email](Member* m) { return m->getEmail() == email; }) == members.end())  { // Check if email is not already registered
 	  break;
 	}else {
 	  throw std::runtime_error ("A member with this email is already registered.Please enter another email: ");
@@ -112,7 +112,7 @@ namespace MyNamespace {
 	    namePromptShown = true;
 	  }
 	  memberName = Librarian::getMemberName();
-	  nameSet = true;
+	  nameSet = true; // Flag so we dont keep asking user for name if an error is encountered
 	}
 	if (!addressSet) {
 	  if (!addressPromptShown) {
@@ -131,7 +131,7 @@ namespace MyNamespace {
 	  emailSet = true;
 	}
 	displayMemberInfo(memberId,memberName,memberAddress,memberEmail);
-	Member* member = new Member(memberId,memberName,memberAddress,memberEmail);
+	Member* member = new Member(memberId,memberName,memberAddress,memberEmail); 
 	members.push_back(member);
 	break;
       }
@@ -185,12 +185,12 @@ namespace MyNamespace {
   void Librarian::issueBook(int memberID, int bookID) {
     auto memberit = Librarian::findMemberByID(memberID);
     auto bookit = Librarian::findBookByID(bookID);
-    if ((Librarian::handleMemberIt(memberit,memberID)) || (Librarian::handleBookIt(bookit,bookID))) {
+    if ((Librarian::handleMemberIt(memberit,memberID)) || (Librarian::handleBookIt(bookit,bookID))) { // If member or book with ID specified not found we exit
       return;
     }
-    if (((*bookit)->checkIfDateSet())) {
+    if ((*bookit)->getDueDate() == Date(1,1,1000)) {
       Librarian::handleBookIssue(memberit,bookit);
-      objectMap[*memberit] = false;
+      objectMap[*memberit] = false; // objectmap is gonna be used to so we dont calculate the fine again when return subsequent books
     }else {
       throw std::runtime_error("\nBook with name \"" + (*bookit)->getBookName() + "\" is already borrowed my another member.");
     }
@@ -218,7 +218,7 @@ namespace MyNamespace {
     if (bookFound) {
       calcFine(memberID);
       Librarian::handleBookReturn(bookit,memberID);
-      objectMap[*memberit] = true;
+      objectMap[*memberit] = true; // After we return the book, we set the value to true so we dont keep calculating the fine on subsequent returns
     } else {
       throw std::runtime_error("Member with ID " + ((*memberit)->getMemberID()) + " did not borrow book with ID " + std::to_string(bookID) +".");
     } 
@@ -237,7 +237,7 @@ namespace MyNamespace {
     int dateComparasion = bookDueDate.compareDates();
     int daysPassed = bookDueDate.getDaysPassed(dateComparasion);
     int fine = 0;
-    if (objectMap[*memberit] == 0) {
+    if (objectMap[*memberit] == 0) { // Same logic, no repetition of calculation in subsequent retuns
     if (daysPassed != 0) {
       std::string dayStr = (daysPassed == 1) ? "day" : "days";
       if (dateComparasion == -1) {
@@ -262,7 +262,7 @@ namespace MyNamespace {
     do {
       std::cin.get(option);
       std::cin.clear();
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n');
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(),'\n'); // Clearing input buffer
       isChoiceNotValid = (std::toupper(option) != 'Y' && std::toupper(option) != 'N');
       if (isChoiceNotValid) {
 	std::cerr << "Invalid input, please enter 'Y' or 'N': ";
@@ -298,7 +298,7 @@ namespace MyNamespace {
   void Librarian::calcFine(int memberID){
     int fine = 0;
     auto memberit = Librarian::findMemberByID(memberID);
-    if (Librarian::handleMemberIt(memberit,memberID)) {
+    if (Librarian::handleMemberIt(memberit,memberID)) { // Exit prematurely if book or member id not found
       return;
     }
     const auto& borrowedBooks = (*memberit)->getBooksBorrowed();
@@ -310,7 +310,7 @@ namespace MyNamespace {
     for (const auto& book: borrowedBooks) {
       fine += Librarian::calcFineForOneBook(book,memberit,finePerDay);
     }
-    if (objectMap[*memberit] == 0) {
+    if (objectMap[*memberit] == 0) { // Print fine only on first return
       printFine(fine);
     }
   }
@@ -328,9 +328,9 @@ namespace MyNamespace {
       size_t counter = 0;
       std::cout << "[";
       for (const auto& book: borrowedBooks) {
-	std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", ";
+	std::string comma = (counter == borrowedBooks.size() - 1) ? "" : ", "; // formatting the output
 	std::cout <<'"'<<book->getBookName() <<'"'<< " by " <<book->getAuthorFirstName() << " " << book->getAuthorLastName() << comma;
-	counter++;
+	counter++; // Counter used for formatting
       }
       std::cout << "]" << std::endl;
     }

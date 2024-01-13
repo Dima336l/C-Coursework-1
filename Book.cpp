@@ -7,8 +7,7 @@ namespace MyNamespace {
     bookName = bName;
     authorFirstName = authFirstN;
     authorLastName = authLastN;
-    dueDateNotSet = true;
-    dueDate = nullptr;
+    dueDate = new Date(1,1,1000);
     borrower = nullptr;
   }
   Book::~Book() {
@@ -29,13 +28,7 @@ namespace MyNamespace {
   }
   
   Date Book::getDueDate() {
-    if (dueDateNotSet) {
-      throw std::logic_error("Due date not set. Set it first.");
-    }
     return *dueDate;
-  }
-  bool Book::checkIfDateSet() {
-    return dueDateNotSet;
   }
 
   void Book::resetDaysSetFlag() {
@@ -102,23 +95,21 @@ namespace MyNamespace {
     }
     newDueDate = newDueDate.addDays(numOfDays);
     dueDate = new Date(newDueDate);
-    dueDateNotSet = false;
   }
   void Book::returnBook() {
     std::vector<Book*>& bookVec = borrower->getBooksBorrowed();
-    auto it = std::find(bookVec.begin(),bookVec.end(),this);
+    auto it = std::find(bookVec.begin(),bookVec.end(),this); // Searching through the booksBorrowed vector of member and deleting the pointer
     if (it != bookVec.end()) {
       bookVec.erase(it);
       delete dueDate;
-      dueDate = nullptr;
-      dueDateNotSet = true;
+      dueDate = new Date(1,1,1000);
     }
   }
   
   void Book::borrowBook(Member &bur,Date due) {
     dueDate = new Date(due);
     bur.setBooksBorrowed(this);
-    borrower = &bur;
+    borrower = &bur; // Making borrower Pointer point to new borrower
     std::cout << std::endl;
     std::cout <<'"'<< bookName <<'"'<< " by " << authorFirstName << " " << authorLastName <<" was successfully borrowed to member with ID " << borrower->getMemberID() <<"."<< std::endl; 
   }

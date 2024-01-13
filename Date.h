@@ -37,6 +37,7 @@ class Date {
   void setYear(int y);
   std::string displayDate() const;
   bool handleInput(int& component, const std::string& errorMessage);
+  bool operator==(const Date& other) const;
 };
 }
 #endif

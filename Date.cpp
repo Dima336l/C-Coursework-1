@@ -3,7 +3,7 @@
 
 
 namespace MyNamespace {
-  Date* Date::currentDate = nullptr;
+  Date* Date::currentDate;
   Date::Date(int d, int m, int y) {
     if (!Date::isValidDate(d,m,y)) {
       throw std::invalid_argument("Invalid date values");
@@ -63,7 +63,7 @@ namespace MyNamespace {
     } else if (month != month1) {
       return (month > month1) ? 1 : -1;
     } else {
-      return (day > day1) ? 1 : ((day == day1) ? 0 : -1);
+      return (day > day1) ? 1 : ((day == day1) ? 0 : -1); // If date greater return 1, equal 0, smaller -1
     }
   }
 
@@ -73,7 +73,7 @@ namespace MyNamespace {
 
     if (std::cin.fail()) {
       std::cin.clear();
-      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+      std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); // Clearing input buffer
       std::cerr << "Invalid input. Please enter an integer for the " << errorMessage << ": ";
       return false;
     }
@@ -94,21 +94,18 @@ namespace MyNamespace {
     bool daySet = false;
     bool monthSet = false;
     bool yearSet = false;
-    currentDate = new Date(1, 12, 2000);
-
+    currentDate = new Date(1, 12, 2000); // Setting up a date so we don't dereference a nullptr
     std::cout << "Enter day: ";
     while (!daySet) {
       if (currentDate->handleInput(d,"day")) {
 	try {
 	  currentDate->setDay(d);
-	  daySet = true;
+	  daySet = true; // Updating flag so we dont keep setting the day again when an error is encountered
 	}
 	catch (const std::invalid_argument& e) {
 	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
 	catch (const std::exception& e) {
-	  
-	  
 	}
       }
     }
@@ -137,8 +134,8 @@ namespace MyNamespace {
 	  std::cerr << "Invalid input: " << e.what() << std::endl;
 	}
 	catch (const std::exception& e) {
+	}
       }
-    }
     }
     std::cout << std::endl;
     std::cout << "Date(" << currentDate->getDay() <<","<<currentDate->getMonth()<<","<<currentDate->getYear()<< ") was successfully set." << std::endl;
@@ -161,10 +158,10 @@ namespace MyNamespace {
     while (year2 < year1 || (year2 == year1 && (month2 < month1 || (month2 == month1 && day2 < day1)))) {
       daysRemaining++;
       day2++;
-      if (day2 > Date::daysInMonth(month2,year2)) {
+      if (day2 > Date::daysInMonth(month2,year2)) { // Checking to see if we overflowed into a new month
 	day2 = 1;
 	month2++;
-	if (month2 > 12) {
+	if (month2 > 12) { // Checking to see if we reached a new year
 	  month2 = 1;
 	  year2++;
 	}
@@ -215,9 +212,9 @@ namespace MyNamespace {
       year += (remainingDays / 365);
       remainingDays %= 365;
       while (remainingDays > 0) {
-	int daysInMonth =Date::daysInMonth(month,year);
+	int daysInMonth = Date::daysInMonth(month,year);
 	if (remainingDays > daysInMonth - day ) {
-	  remainingDays = remainingDays - (daysInMonth - day );
+	  remainingDays = remainingDays - (daysInMonth - day ); // Calculating how many days left after surpassing the month
 	  month ++;
 	  if (month > 12) {
 	    month = 1;
@@ -244,7 +241,7 @@ namespace MyNamespace {
     static const int days[] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
     int daysInMonth = days[m];
     if (m == 2 && Date::isLeapYear(y)) {
-      daysInMonth = 29;
+      daysInMonth = 29; // Adjusting for leapyear
     }
     return daysInMonth;
   }
@@ -253,4 +250,7 @@ namespace MyNamespace {
     return (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
   }
 
+  bool Date::operator==(const Date& other) const {
+    return (year == other.year && month == other.month && day == other.day);
+  }
 }

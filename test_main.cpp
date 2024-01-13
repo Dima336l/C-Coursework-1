@@ -249,9 +249,6 @@ TEST_CASE("Book class test","[Book]") {
     REQUIRE(book->getAuthorFirstName() == "Dumitru");
     REQUIRE(book->getAuthorLastName() == "Nirca");
   }
-  SECTION("Testing getDueDate function when due date not set") {
-    REQUIRE_THROWS_AS(book->getDueDate(),std::logic_error);
-  }
   SECTION("Testing setDueDate and getDueDate functions") {
     Date* currentDate = Date::getCurrentDate();
     book->setDueDate(currentDate);
@@ -269,7 +266,6 @@ TEST_CASE("Book class test","[Book]") {
     REQUIRE(member1->getBooksBorrowed().size() == 1);
     book2->returnBook();
     REQUIRE(member1->getBooksBorrowed().size() == 0);
-    REQUIRE_THROWS_AS((book2->getDueDate()),std::logic_error);
   }
 }
 TEST_CASE("Member class test","[Member]") {

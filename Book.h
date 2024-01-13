@@ -14,7 +14,6 @@ namespace MyNamespace {
   class Member;
 class Book { 
   private:
-  bool dueDateNotSet;
   int bookID;
   std::string bookName;
   std::string authorFirstName;
@@ -33,7 +32,6 @@ class Book {
   int determineNumOfDays();
   int chooseAnotherDate();
   Date getDueDate();
-  bool checkIfDateSet();
   void setDueDate(Date* dueDate);
   void returnBook();
   void borrowBook(Member &burrower, Date dueDate);
