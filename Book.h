@@ -31,6 +31,7 @@ class Book {
   std::string getAuthorLastName();
   void resetDaysSetFlag();
   int determineNumOfDays();
+  int chooseAnotherDate();
   Date getDueDate();
   bool checkIfDateSet();
   void setDueDate(Date* dueDate);
